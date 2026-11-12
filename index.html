@@ -105,6 +105,20 @@
             font-size: 15px; color: #3db52c; text-transform: uppercase; font-weight: bold;
         }
 
+        .back-nav-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.1s;
+        }
+        .back-nav-area:hover {
+            background: rgba(61, 181, 44, 0.15);
+            color: #fff;
+        }
+
         .freq-header-box {
             border: 1px solid #f39c12;
             color: #f39c12;
@@ -782,7 +796,9 @@ table th,table td{
         <div class="pager-screen-container">
             <div class="pager-screen" id="mainScreenArea">
                 <div class="screen-header">
-                    <span id="screenTitle"> SYSTEM</span>
+                    <div class="back-nav-area" onclick="goBackToMenu()" title="Klepnutím se vrátíš zpět">
+                        <span id="screenTitle"> SYSTEM</span>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div class="freq-header-box">
                             <span style="opacity: 0.8;">FREQ:</span>
@@ -819,7 +835,7 @@ table th,table td{
 
     <script>
         const SUPABASE_URL = 'https://cwjhohrxadgyrfonoitl.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3amhvaHJ4YWRneXJmb25vaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTI2MDUsImV4cCI6MjEwNTM4ODYwNX0.vba_lEHp1xeh49MczvO6dHyUjUYK3BkmWMKoE1PXU1k';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3amhvaHJ4YWRgyJmb25vaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTI2MDUsImV4cCI6MjEwNTM4ODYwNX0.vba_lEHp1xeh49MczvO6dHyUjUYK3BkmWMKoE1PXU1k';
         
         const DISCORD_CLIENT_ID = "1550863063538733207";
         const DISCORD_GUILD_ID = "1552778056219893862";
@@ -902,7 +918,6 @@ table th,table td{
                     return false;
                 }
                 
-                // Live chat skrytý pro mekaniky
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
                     if (t.id === 'livechat') {
                         return false;
@@ -1517,7 +1532,7 @@ table th,table td{
             const author = getCurrentAuthorName();
             
             if (category === 'slevy') {
-                if (!state.isAdmin && !state.isServerAdmin) return; // Pouze admin může slevy zapisovat
+                if (!state.isAdmin && !state.isServerAdmin) return; 
                 const title = document.getElementById('slevy_title')?.value;
                 const desc = document.getElementById('slevy_desc')?.value;
                 if (!title || !desc) return;
@@ -1687,9 +1702,9 @@ table th,table td{
 
             let author = getCurrentAuthorName();
 
-            if (category === 'slevy' && !state.isAdmin) return; // Mechanik ani nikdo jiný než admin nemůže slevy mazat
+            if (category === 'slevy' && !state.isAdmin) return; 
             if (category === 'info_dilna' && !state.isAdmin) return;
-            if ((category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && item.author !== author) return; // Pouze vlastní nebo admin
+            if ((category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && item.author !== author) return; 
             if (category === 'slozky' && !state.isAdmin && item.author !== author) return;
             if (category === 'prodej_meth' && !state.isAdmin) return;
             if (category === 'parking' && !state.isAdmin) return;
@@ -1698,7 +1713,7 @@ table th,table td{
             if (category === 'pokuty' && !state.isAdmin) return;
             if (category === 'oznameni' && !state.isAdmin) return;
             if (category === 'info' && !state.isAdmin && item.author !== author) return;
-            if (category === 'kontakty' && !state.isAdmin && item.author !== author) return; // Pouze vlastní nebo admin
+            if (category === 'kontakty' && !state.isAdmin && item.author !== author) return; 
 
             state[category] = state[category].filter(i => i.id !== id);
             saveCloudState();
@@ -2226,13 +2241,12 @@ table th,table td{
             } 
             else {
                 let currentTabObj = tabsList.find(t => t.id === openedTab);
-                title.innerText = `> ${currentTabObj.name.toUpperCase()}`;
+                title.innerText = `◄ ${currentTabObj.name.toUpperCase()}`;
                 let contentHTML = "";
 
                 if (openedTab === 'slevy') {
                     let editItem = state.slevy.find(i => i.id === editingItemId);
                     
-                    // Pouze admin může slevy přidávat/upravovat
                     if (state.isAdmin || state.isServerAdmin) {
                         contentHTML += `<div class="simple-form-box">
                             <input type="text" id="slevy_title" class="pager-edit-input" placeholder="Název slevy / Akce" value="${editItem ? editItem.title : ''}">
@@ -2250,7 +2264,7 @@ table th,table td{
                         contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím nejsou zadány žádné slevy.</div>`;
                     } else {
                         state.slevy.forEach(item => {
-                            let canEditDel = (state.isAdmin || state.isServerAdmin); // Pouze admin může u slev mazat/upravovat
+                            let canEditDel = (state.isAdmin || state.isServerAdmin);
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">🏷️ ${item.title} <span style="font-size:10px; color:#666;">(Vložil: ${item.author})</span>
                                     <div class="action-buttons-group">
@@ -2313,7 +2327,6 @@ table th,table td{
                         contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Žádné záznamy v této složce.</div>`;
                     } else {
                         state[openedTab].forEach(item => {
-                            // Upravit/smazat může admin nebo autor zápisku
                             let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">🔧 ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
@@ -2420,7 +2433,7 @@ table th,table td{
                         }
 
                         if (emp) {
-                            title.innerText = ` SLOŽKA: ${emp.name.toUpperCase()}`;
+                            title.innerText = `◄ SLOŽKA: ${emp.name.toUpperCase()}`;
                             
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">📋 OSOBNÍ ÚDAJE</div>
@@ -2513,7 +2526,7 @@ table th,table td{
                             <button class="edit-action-btn save-action-btn" onclick="saveItem('info')">${editingItemId ? '💾 Uložit' : '+ Přidat info'}</button>
                             ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
                         </div>
-                    `;
+                    </div>`;
 
                     state.info.forEach(item => {
                         let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
@@ -2706,7 +2719,6 @@ table th,table td{
 
                     contentHTML += `<table><tr><th>JMÉNO</th><th>TELEFON</th><th>POZNÁMKA</th><th>AKCE</th></tr>`;
                     state.kontakty.forEach(item => {
-                        // Úprava a mazání kontaktů pouze pro vlastníky (nebo admina)
                         let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
                         contentHTML += `<tr>
                             <td><b>${item.name}</b></td>
