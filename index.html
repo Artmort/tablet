@@ -2700,20 +2700,23 @@ table th,table td{
                     </div>`;
 
                     contentHTML += `<table><tr><th>JMÉNO</th><th>TELEFON</th><th>POZNÁMKA</th><th>AKCE</th></tr>`;
-                    state.kontakty.items.forEach = undefined; // safety
-                    state.kontakty.forEach(item => {
-                        let canEditDel = (state.isAdmin || item.author === currentAuthor);
-                        contentHTML += `<tr>
-                            <td><b>${item.name}</b> <span style="font-size:9px; color:#555;">(${item.author})</span></td>
-                            <td style="color:#f39c12;">${item.phone}</td>
-                            <td>${item.note || '-'}</td>
-                            <td>
-                                <div class="action-buttons-group">
-                                    ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('kontakty', ${item.id})">Upravit</button>` : ''}
-                                    ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('kontakty', ${item.id})">Smazat</button>` : ''}
-                                </div>
-                            </td>
-                        </tr>`;
+                    
+                    if (!state.kontakty || state.kontakty.length === 0) {
+                        contentHTML += `<tr><td colspan="4" style="text-align:center; color:#666;">Žádné kontakty.</td></tr>`;
+                    } else {
+                        state.kontakty.forEach(item => {
+                            let canEditDel = (state.isAdmin || !item.author || item.author === currentAuthor);
+                            contentHTML += `<tr>
+                                <td><b>${item.name}</b> <span style="font-size:9px; color:#555;">(${item.author || 'Neznámý'})</span></td>
+                                <td style="color:#f39c12;">${item.phone}</td>
+                                <td>${item.note || '-'}</td>
+                                <td>
+                                    <div class="action-buttons-group">
+                                        ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('kontakty', ${item.id})">Upravit</button>` : ''}
+                                        ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('kontakty', ${item.id})">Smazat</button>` : ''}
+                                    </div>
+                                </td>
+                            </tr>`;
                     });
                     contentHTML += `</table>`;
                 }
