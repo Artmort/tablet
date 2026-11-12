@@ -1660,14 +1660,17 @@ table th,table td{
                     state.pokuty.push({ id: Date.now(), author, member, amount, reason });
                 }
             } else if (category === 'kontakty') {
-                if (!state.isAdmin && !state.isServerAdmin) return; // Pouze admin
                 const name = document.getElementById('contact_name').value;
                 const phone = document.getElementById('contact_phone').value;
                 const note = document.getElementById('contact_note')?.value || '';
                 if (!name || !phone) return;
                 if (editingItemId) {
                     let item = state.kontakty.find(i => i.id === editingItemId);
-                    if (item) { item.name = name; item.phone = phone; item.note = note; }
+                    if (item && (state.isAdmin || item.author === author)) { 
+                        item.name = name; 
+                        item.phone = phone; 
+                        item.note = note; 
+                    }
                 } else {
                     state.kontakty.push({ id: Date.now(), author, name, phone, note });
                 }
@@ -1696,7 +1699,7 @@ table th,table td{
             if (category === 'pokuty' && !state.isAdmin) return;
             if (category === 'oznameni' && !state.isAdmin) return;
             if (category === 'info' && !state.isAdmin && item.author !== author) return;
-            if (category === 'kontakty' && !state.isAdmin) return; // Pouze admin může mazat kontakty!
+            if (category === 'kontakty' && !state.isAdmin && item.author !== author) return;
 
             state[category] = state[category].filter(i => i.id !== id);
             saveCloudState();
@@ -2684,33 +2687,32 @@ table th,table td{
                 }
                 else if (openedTab === 'kontakty') {
                     let editItem = state.kontakty.find(i => i.id === editingItemId);
+                    let currentAuthor = getCurrentAuthorName();
 
-                    // Formulář pro přidání/úpravu kontaktů vidí POUZE admin
-                    if (state.isAdmin) {
-                        contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="contact_name" class="pager-edit-input" placeholder="Jméno / Pozice" value="${editItem ? editItem.name : ''}">
-                            <input type="text" id="contact_phone" class="pager-edit-input" placeholder="Telefonní číslo" value="${editItem ? editItem.phone : ''}">
-                            <input type="text" id="contact_note" class="pager-edit-input" placeholder="Poznámka" value="${editItem ? editItem.note || '' : ''}">
-                            <div style="display:flex; gap:6px;">
-                                <button class="edit-action-btn save-action-btn" onclick="saveItem('kontakty')">${editingItemId ? '💾 Uložit' : '+ Uložit kontakt'}</button>
-                                ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
-                            </div>
-                        </div>`;
-                    }
+                    contentHTML += `<div class="simple-form-box">
+                        <input type="text" id="contact_name" class="pager-edit-input" placeholder="Jméno / Pozice" value="${editItem ? editItem.name : ''}">
+                        <input type="text" id="contact_phone" class="pager-edit-input" placeholder="Telefonní číslo" value="${editItem ? editItem.phone : ''}">
+                        <input type="text" id="contact_note" class="pager-edit-input" placeholder="Poznámka" value="${editItem ? editItem.note || '' : ''}">
+                        <div style="display:flex; gap:6px;">
+                            <button class="edit-action-btn save-action-btn" onclick="saveItem('kontakty')">${editingItemId ? '💾 Uložit' : '+ Uložit kontakt'}</button>
+                            ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
+                        </div>
+                    </div>`;
 
-                    let showActionsCol = state.isAdmin;
-                    contentHTML += `<table><tr><th>JMÉNO</th><th>TELEFON</th><th>POZNÁMKA</th>${showActionsCol ? '<th>AKCE</th>' : ''}</tr>`;
+                    contentHTML += `<table><tr><th>JMÉNO</th><th>TELEFON</th><th>POZNÁMKA</th><th>AKCE</th></tr>`;
+                    state.kontakty.items.forEach = undefined; // safety
                     state.kontakty.forEach(item => {
+                        let canEditDel = (state.isAdmin || item.author === currentAuthor);
                         contentHTML += `<tr>
-                            <td><b>${item.name}</b></td>
+                            <td><b>${item.name}</b> <span style="font-size:9px; color:#555;">(${item.author})</span></td>
                             <td style="color:#f39c12;">${item.phone}</td>
                             <td>${item.note || '-'}</td>
-                            ${showActionsCol ? `<td>
+                            <td>
                                 <div class="action-buttons-group">
-                                    <button class="edit-action-btn" onclick="startEditing('kontakty', ${item.id})">Upravit</button>
-                                    <button class="edit-action-btn delete-action-btn" onclick="deleteItem('kontakty', ${item.id})">Smazat</button>
+                                    ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('kontakty', ${item.id})">Upravit</button>` : ''}
+                                    ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('kontakty', ${item.id})">Smazat</button>` : ''}
                                 </div>
-                            </td>` : ''}
+                            </td>
                         </tr>`;
                     });
                     contentHTML += `</table>`;
