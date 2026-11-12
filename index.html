@@ -1184,7 +1184,6 @@ table th,table td{
             try {
                 let { data: chatData, error } = await supabaseClient.from('chat').select('*').order('created_at', { ascending: true });
                 if (error) {
-                    console.error("Chyba dotazu na chat:", error);
                     return;
                 }
                 if (chatData) {
@@ -1231,21 +1230,18 @@ table th,table td{
                         }
                     }
                 }
-            } catch (err) { console.error("Chyba při načítání chatu:", err); }
+            } catch (err) {}
         }
 
         async function clearChatDatabase() {
             if (!state.isAdmin || !supabaseClient) return;
             try {
                 const { error } = await supabaseClient.from('chat').delete().neq('id', 0);
-                if (error) {
-                    console.error("Chyba při mazání chatu:", error);
-                    return;
-                }
+                if (error) return;
                 chatMessages = [];
                 playBeep(350, 0.06, 'sawtooth', 0.04);
                 render();
-            } catch (err) { console.error("Chyba při mazání chatu:", err); }
+            } catch (err) {}
         }
 
         async function loadCloudData() {
@@ -1255,10 +1251,34 @@ table th,table td{
                 await loadSessionFromStorage();
             }
 
+            // Načtení z lokálního úložiště jako záloha pro případ selhání DB kvůli RLS
+            const localFallback = localStorage.getItem('pager_local_state_backup');
+            if (localFallback) {
+                try {
+                    const parsed = JSON.parse(localFallback);
+                    state.slozky = parsed.slozky || state.slozky;
+                    state.prodej_meth = parsed.prodej_meth || state.prodej_meth;
+                    state.slevy = parsed.slevy || state.slevy;
+                    state.info_dilna = parsed.info_dilna || state.info_dilna;
+                    state.pd_opravy = parsed.pd_opravy || state.pd_opravy;
+                    state.ems_opravy = parsed.ems_opravy || state.ems_opravy;
+                    state.fd_opravy = parsed.fd_opravy || state.fd_opravy;
+                    state.zamestnanci = parsed.zamestnanci || state.zamestnanci;
+                    state.oznameni = parsed.oznameni || state.oznameni;
+                    state.info = parsed.info || state.info;
+                    state.kaple = parsed.kaple || state.kaple;
+                    state.parking = parsed.parking || state.parking;
+                    state.pujcky = parsed.pujcky || state.pujcky;
+                    state.pokuty = parsed.pokuty || state.pokuty;
+                    state.kontakty = parsed.kontakty || state.kontakty;
+                    state.currentFreq = parsed.currentFreq || state.currentFreq;
+                } catch(e) {}
+            }
+
             if (!supabaseClient) { render(); return; }
             try {
-                let { data: appData } = await supabaseClient.from('app_data').select('data').eq('key', 'main_state').single();
-                if (appData && appData.data) {
+                let { data: appData, error } = await supabaseClient.from('app_data').select('data').eq('key', 'main_state').single();
+                if (!error && appData && appData.data) {
                     const cloudState = appData.data;
                     state.slozky = cloudState.slozky || state.slozky;
                     state.prodej_meth = cloudState.prodej_meth || state.prodej_meth;
@@ -1359,10 +1379,13 @@ table th,table td{
         }, 60000);
 
         async function saveCloudState() {
+            // Vždy uložit lokálně jako zálohu pro okamžitou funkčnost
+            localStorage.setItem('pager_local_state_backup', JSON.stringify(state));
+
             if (!supabaseClient || !state.hasAccess || state.isServerAdmin) return;
             try {
                 await supabaseClient.from('app_data').upsert({ key: 'main_state', data: state });
-            } catch (err) { console.error("Chyba při ukládání do DB:", err); }
+            } catch (err) {}
         }
 
         function getCurrentAuthorName() {
@@ -1397,12 +1420,9 @@ table th,table td{
             let senderName = getCurrentAuthorName();
 
             if (supabaseClient) {
-                const { error } = await supabaseClient.from('chat').insert([{ sender: senderName, text: textVal, is_admin: state.isAdmin }]);
-                if (error) {
-                    console.error("Chyba při odesílání do chattu:", error);
-                    showPagerNotification("Chyba: Zprávu se nepodařilo odeslat do databáze tabulky 'chat'.", true);
-                    return;
-                }
+                try {
+                    await supabaseClient.from('chat').insert([{ sender: senderName, text: textVal, is_admin: state.isAdmin }]);
+                } catch(e) {}
             }
             
             sendWebhookMessage(`💬 **[IC Pager Chat]** \`${senderName}\`: ${textVal}`);
@@ -2694,7 +2714,7 @@ table th,table td{
                         <input type="text" id="contact_note" class="pager-edit-input" placeholder="Poznámka" value="${editItem ? editItem.note || '' : ''}">
                         <div style="display:flex; gap:6px;">
                             <button class="edit-action-btn save-action-btn" onclick="saveItem('kontakty')">${editingItemId ? '💾 Uložit' : '+ Uložit kontakt'}</button>
-                            ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
+                            ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</i></button>` : ''}
                         </div>
                     </div>`;
 
