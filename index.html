@@ -868,7 +868,7 @@ table th,table td{
         const tabsList = [
             { id: 'livechat', name: '💬 LIVE CHAT KLUBU' },
             { id: 'nastaveni_nicku', name: '✏️ Nastavit Přezdívku' },
-            { id: 'zamestnanci', name: '👥 Složky zaměstnanců' },
+            { id: 'zamestnanci', name: '👥 Složky členů' },
             { id: 'slevy', name: '🏷️ Slevy' },
             { id: 'info_dilna', name: '🛠️ Info dílna' },
             { id: 'pd_opravy', name: '🔧 PD opravy' },
@@ -902,6 +902,7 @@ table th,table td{
                     return false;
                 }
                 
+                // Mechanik nesmí vidět livechat
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
                     const allowedMechanicTabs = ['nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
                     if (!allowedMechanicTabs.includes(t.id)) {
@@ -1180,7 +1181,7 @@ table th,table td{
         }
 
         async function fetchChatMessages(shouldRender = false) {
-            if (!supabaseClient || state.isServerAdmin) return;
+            if (!supabaseClient || state.isServerAdmin || state.isMechanic) return;
             try {
                 let { data: chatData, error } = await supabaseClient.from('chat').select('*').order('created_at', { ascending: true });
                 if (error) {
@@ -1278,7 +1279,7 @@ table th,table td{
                     state.currentFreq = cloudState.currentFreq || state.currentFreq;
                 }
                 
-                if (!state.isServerAdmin) {
+                if (!state.isServerAdmin && !state.isMechanic) {
                     await fetchChatMessages(false);
                     
                     supabaseClient.channel('public:chat')
@@ -1349,7 +1350,7 @@ table th,table td{
         }
 
         setInterval(() => {
-            if (state.hasAccess && !state.isServerAdmin) {
+            if (state.hasAccess && !state.isServerAdmin && !state.isMechanic) {
                 fetchChatMessages(openedTab === 'livechat');
             }
         }, 3000);
@@ -1388,7 +1389,7 @@ table th,table td{
         }
 
         async function sendChatMessage() {
-            if (!state.hasAccess || state.isServerAdmin) return;
+            if (!state.hasAccess || state.isServerAdmin || state.isMechanic) return;
             const input = document.getElementById('chatInputField');
             if (!input || !input.value.trim()) return;
             const textVal = input.value.trim();
@@ -1659,13 +1660,14 @@ table th,table td{
                     state.pokuty.push({ id: Date.now(), author, member, amount, reason });
                 }
             } else if (category === 'kontakty') {
+                if (!state.isAdmin && !state.isServerAdmin) return; // Pouze admin
                 const name = document.getElementById('contact_name').value;
                 const phone = document.getElementById('contact_phone').value;
                 const note = document.getElementById('contact_note')?.value || '';
                 if (!name || !phone) return;
                 if (editingItemId) {
                     let item = state.kontakty.find(i => i.id === editingItemId);
-                    if (item && (state.isAdmin || item.author === author)) { item.name = name; item.phone = phone; item.note = note; }
+                    if (item) { item.name = name; item.phone = phone; item.note = note; }
                 } else {
                     state.kontakty.push({ id: Date.now(), author, name, phone, note });
                 }
@@ -1694,7 +1696,7 @@ table th,table td{
             if (category === 'pokuty' && !state.isAdmin) return;
             if (category === 'oznameni' && !state.isAdmin) return;
             if (category === 'info' && !state.isAdmin && item.author !== author) return;
-            if (category === 'kontakty' && !state.isAdmin && item.author !== author) return;
+            if (category === 'kontakty' && !state.isAdmin) return; // Pouze admin může mazat kontakty!
 
             state[category] = state[category].filter(i => i.id !== id);
             saveCloudState();
@@ -1795,7 +1797,7 @@ table th,table td{
             if (openedTab === 'freq') state.hasUnreadFreq = false;
             saveCloudState();
             render();
-            if (openedTab === 'livechat' && !state.isServerAdmin) {
+            if (openedTab === 'livechat' && !state.isServerAdmin && !state.isMechanic) {
                 fetchChatMessages(true);
             }
         }
@@ -1885,7 +1887,7 @@ table th,table td{
 
             if (activeModalImage !== null) { if (e.key === 'Escape' || e.key === 'Enter') closeImageModal(); return; }
             if (isFlipped) { if (e.key === 'Escape') toggleFlip(); return; }
-            if (openedTab === 'livechat' && document.activeElement?.id === 'chatInputField' && !state.isServerAdmin) {
+            if (openedTab === 'livechat' && document.activeElement?.id === 'chatInputField' && !state.isServerAdmin && !state.isMechanic) {
                 if (e.key === 'Enter') { sendChatMessage(); e.preventDefault(); }
                 return;
             }
@@ -2257,7 +2259,6 @@ table th,table td{
                 else if (openedTab === 'info_dilna') {
                     let editItem = state.info_dilna.find(i => i.id === editingItemId);
 
-                    // Pouze admin (nebo server admin) může do info dílny psát/upravovat
                     if (state.isAdmin || state.isServerAdmin) {
                         contentHTML += `<div class="simple-form-box">
                             <input type="text" id="info_dilna_title" class="pager-edit-input" placeholder="Nadpis info dílny" value="${editItem ? editItem.title : ''}">
@@ -2683,31 +2684,33 @@ table th,table td{
                 }
                 else if (openedTab === 'kontakty') {
                     let editItem = state.kontakty.find(i => i.id === editingItemId);
-                    let currentAuthor = getCurrentAuthorName();
 
-                    contentHTML += `<div class="simple-form-box">
-                        <input type="text" id="contact_name" class="pager-edit-input" placeholder="Jméno / Pozice" value="${editItem ? editItem.name : ''}">
-                        <input type="text" id="contact_phone" class="pager-edit-input" placeholder="Telefonní číslo" value="${editItem ? editItem.phone : ''}">
-                        <input type="text" id="contact_note" class="pager-edit-input" placeholder="Poznámka" value="${editItem ? editItem.note || '' : ''}">
-                        <div style="display:flex; gap:6px;">
-                            <button class="edit-action-btn save-action-btn" onclick="saveItem('kontakty')">${editingItemId ? '💾 Uložit' : '+ Uložit kontakt'}</button>
-                            ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
-                        </div>
-                    </div>`;
+                    // Formulář pro přidání/úpravu kontaktů vidí POUZE admin
+                    if (state.isAdmin) {
+                        contentHTML += `<div class="simple-form-box">
+                            <input type="text" id="contact_name" class="pager-edit-input" placeholder="Jméno / Pozice" value="${editItem ? editItem.name : ''}">
+                            <input type="text" id="contact_phone" class="pager-edit-input" placeholder="Telefonní číslo" value="${editItem ? editItem.phone : ''}">
+                            <input type="text" id="contact_note" class="pager-edit-input" placeholder="Poznámka" value="${editItem ? editItem.note || '' : ''}">
+                            <div style="display:flex; gap:6px;">
+                                <button class="edit-action-btn save-action-btn" onclick="saveItem('kontakty')">${editingItemId ? '💾 Uložit' : '+ Uložit kontakt'}</button>
+                                ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
+                            </div>
+                        </div>`;
+                    }
 
-                    contentHTML += `<table><tr><th>JMÉNO</th><th>TELEFON</th><th>POZNÁMKA</th><th>AKCE</th></tr>`;
+                    let showActionsCol = state.isAdmin;
+                    contentHTML += `<table><tr><th>JMÉNO</th><th>TELEFON</th><th>POZNÁMKA</th>${showActionsCol ? '<th>AKCE</th>' : ''}</tr>`;
                     state.kontakty.forEach(item => {
-                        let canEditDel = (state.isAdmin || item.author === currentAuthor);
                         contentHTML += `<tr>
                             <td><b>${item.name}</b></td>
                             <td style="color:#f39c12;">${item.phone}</td>
                             <td>${item.note || '-'}</td>
-                            <td>
+                            ${showActionsCol ? `<td>
                                 <div class="action-buttons-group">
-                                    ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('kontakty', ${item.id})">Upravit</button>` : ''}
-                                    ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('kontakty', ${item.id})">Smazat</button>` : ''}
+                                    <button class="edit-action-btn" onclick="startEditing('kontakty', ${item.id})">Upravit</button>
+                                    <button class="edit-action-btn delete-action-btn" onclick="deleteItem('kontakty', ${item.id})">Smazat</button>
                                 </div>
-                            </td>
+                            </td>` : ''}
                         </tr>`;
                     });
                     contentHTML += `</table>`;
