@@ -902,12 +902,17 @@ table th,table td{
                     return false;
                 }
                 
-                // Slevy vidí pouze Admini
-                if (t.id === 'slevy') {
-                    if (!state.isAdmin && !state.isServerAdmin) return false;
+                if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
+                    const allowedMechanicTabs = ['livechat', 'nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
+                    if (!allowedMechanicTabs.includes(t.id)) {
+                        return false;
+                    }
                 }
                 
-                // Info dílna a opravárenské složky vidí mechanici, admini a server admini
+                if (t.id === 'slevy') {
+                    if (!state.isAdmin && !state.isServerAdmin && !state.isMechanic) return false;
+                }
+                
                 const mechanicRooms = ['info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
                 if (mechanicRooms.includes(t.id)) {
                     if (!state.isMechanic && !state.isAdmin && !state.isServerAdmin) return false;
@@ -1519,16 +1524,13 @@ table th,table td{
                     state.slevy.push({ id: Date.now(), author, title, desc });
                 }
             } else if (category === 'info_dilna') {
-                if (!state.isMechanic && !state.isAdmin && !state.isServerAdmin) return;
+                if (!state.isAdmin && !state.isServerAdmin) return;
                 const title = document.getElementById('info_dilna_title')?.value;
                 const desc = document.getElementById('info_dilna_desc')?.value;
                 if (!title || !desc) return;
                 if (editingItemId) {
                     let item = state.info_dilna.find(i => i.id === editingItemId);
-                    if (item && (state.isAdmin || item.author === author)) {
-                        item.title = title;
-                        item.desc = desc;
-                    }
+                    if (item) { item.title = title; item.desc = desc; }
                 } else {
                     state.info_dilna.push({ id: Date.now(), author, title, desc });
                 }
@@ -1682,7 +1684,8 @@ table th,table td{
             let author = getCurrentAuthorName();
 
             if (category === 'slevy' && !state.isAdmin) return;
-            if ((category === 'info_dilna' || category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && item.author !== author) return;
+            if (category === 'info_dilna' && !state.isAdmin) return;
+            if ((category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && item.author !== author) return;
             if (category === 'slozky' && !state.isAdmin && item.author !== author) return;
             if (category === 'prodej_meth' && !state.isAdmin) return;
             if (category === 'parking' && !state.isAdmin) return;
@@ -2238,7 +2241,7 @@ table th,table td{
                         contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím nejsou zadány žádné slevy.</div>`;
                     } else {
                         state.slevy.forEach(item => {
-                            let canEditDel = (state.isAdmin || state.isServerAdmin);
+                            let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === getCurrentAuthorName());
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">🏷️ ${item.title} <span style="font-size:10px; color:#666;">(Vložil: ${item.author})</span>
                                     <div class="action-buttons-group">
@@ -2252,25 +2255,25 @@ table th,table td{
                     }
                 }
                 else if (openedTab === 'info_dilna') {
-                    let currentAuthor = getCurrentAuthorName();
                     let editItem = state.info_dilna.find(i => i.id === editingItemId);
 
-                    if (state.isMechanic || state.isAdmin || state.isServerAdmin) {
+                    // Pouze admin (nebo server admin) může do info dílny psát/upravovat
+                    if (state.isAdmin || state.isServerAdmin) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="info_dilna_title" class="pager-edit-input" placeholder="Název informace / Ceník / Postup" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="info_dilna_desc" class="pager-edit-input" placeholder="Podrobný popis..." value="${editItem ? editItem.desc : ''}">
+                            <input type="text" id="info_dilna_title" class="pager-edit-input" placeholder="Nadpis info dílny" value="${editItem ? editItem.title : ''}">
+                            <input type="text" id="info_dilna_desc" class="pager-edit-input" placeholder="Obsah informací..." value="${editItem ? editItem.desc : ''}">
                             <div style="display:flex; gap:6px;">
-                                <button class="edit-action-btn save-action-btn" onclick="saveItem('info_dilna')">${editingItemId ? '💾 Uložit' : '+ Přidat do info dílny'}</button>
+                                <button class="edit-action-btn save-action-btn" onclick="saveItem('info_dilna')">${editingItemId ? '💾 Uložit' : '+ Přidat záznam'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
                             </div>
                         </div>`;
                     }
 
                     if (state.info_dilna.length === 0) {
-                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">V dílenské nástěnce zatím nic není.</div>`;
+                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">V info dílně zatím nejsou žádné záznamy.</div>`;
                     } else {
                         state.info_dilna.forEach(item => {
-                            let canEditDel = (state.isAdmin || item.author === currentAuthor);
+                            let canEditDel = (state.isAdmin || state.isServerAdmin);
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">🛠️ ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
                                     <div class="action-buttons-group">
@@ -2462,6 +2465,7 @@ table th,table td{
                 }
                 else if (openedTab === 'oznameni') {
                     let editItem = state.oznameni.find(i => i.id === editingItemId);
+                    let currentAuthor = getCurrentAuthorName();
 
                     if (state.isAdmin && !state.isServerAdmin) {
                         contentHTML += `<div class="simple-form-box">
