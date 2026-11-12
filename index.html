@@ -910,10 +910,6 @@ table th,table td{
 
         function getVisibleTabs() {
             const hiddenForServerAdmin = ['livechat', 'kasa', 'oznameni', 'slozky', 'prodej_meth'];
-            
-            // Seznam záložek, které jsou čistě mechanické místnosti
-            const mechanicRooms = ['info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
-
             return tabsList.filter(t => {
                 if (state.isServerAdmin && hiddenForServerAdmin.includes(t.id)) {
                     return false;
@@ -922,19 +918,23 @@ table th,table td{
                     return false;
                 }
                 
-                // Pokud má uživatel POUZE roli Mechanic (a není admin), uvidí výhradně mechanické místnosti
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
-                    return mechanicRooms.includes(t.id);
+                    if (t.id === 'livechat') {
+                        return false;
+                    }
+                    const allowedMechanicTabs = ['nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
+                    if (!allowedMechanicTabs.includes(t.id)) {
+                        return false;
+                    }
                 }
                 
-                // Mechanické místnosti uvidí kdokoli, kdo má roli Mechanic, nebo admin
-                if (mechanicRooms.includes(t.id)) {
-                    return state.isMechanic || state.isAdmin || state.isServerAdmin;
-                }
-
-                // Záložka slevy (pokud ji chcete vázat na mechaniky/vedení)
                 if (t.id === 'slevy') {
-                    return state.isAdmin || state.isServerAdmin || state.isMechanic;
+                    if (!state.isAdmin && !state.isServerAdmin && !state.isMechanic) return false;
+                }
+                
+                const mechanicRooms = ['info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
+                if (mechanicRooms.includes(t.id)) {
+                    if (!state.isMechanic && !state.isAdmin && !state.isServerAdmin) return false;
                 }
 
                 return true;
