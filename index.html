@@ -105,6 +105,7 @@
             font-size: 15px; color: #3db52c; text-transform: uppercase; font-weight: bold;
         }
 
+        /* ORANŽOVÝ RÁMEČEK PRO FREQ V ZÁHLAVÍ */
         .freq-header-box {
             border: 1px solid #f39c12;
             color: #f39c12;
@@ -120,6 +121,7 @@
             letter-spacing: 1px;
         }
 
+        /* NOTIFIKAČNÍ BUBLE/LIŠTA CHATU */
         .chat-banner-notification {
             background: rgba(243, 156, 18, 0.2);
             border: 1px solid #f39c12;
@@ -221,6 +223,7 @@
         .image-modal-box { background: #0c0f0d; border: 2px solid #2e6b2e; border-radius: 8px; padding: 15px; max-width: 90%; max-height: 90%; display: flex; flex-direction: column; align-items: center; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
         .image-modal-box img { max-width: 100%; max-height: 400px; border-radius: 4px; border: 1px solid #1f3a20; margin-bottom: 12px; object-fit: contain; }
 
+        /* KASA - izolovaná sekce */
         .kasa-wrap { display:flex; flex-direction:column; gap:10px; height:100%; min-height:0; }
         .kasa-layout { display:grid; grid-template-columns:1.35fr 1fr; gap:12px; min-height:0; flex:1; }
         .kasa-panel { border:1px solid #18331a; background:rgba(0,25,10,0.22); border-radius:7px; padding:10px; min-height:0; overflow:auto; }
@@ -250,6 +253,7 @@
         .kasa-bill { display:flex; justify-content:space-between; align-items:center; gap:6px; padding:7px; background:rgba(0,20,8,.4); border-left:3px solid #448aff; margin-bottom:5px; border-radius:4px; font-size:10px; }
         .kasa-bill-actions { display:flex; gap:4px; }
         
+        /* PAGER NOTIFIKAČNÍ BOX */
         .pager-notification {
             background: rgba(0, 30, 10, 0.85);
             border: 1px solid #4cd137;
@@ -275,6 +279,10 @@
 
         @media (max-width:800px) { .kasa-layout{grid-template-columns:1fr;} .kasa-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
     
+/* =========================================================
+   TABLET UI SKIN — vizuální vrstva, logika aplikace beze změn
+   ========================================================= */
+
 :root{
     --tablet-bg:#0b0d11;
     --tablet-frame:#171a20;
@@ -292,6 +300,7 @@
     --tablet-orange:#ffb454;
 }
 
+/* Celé zařízení už nevypadá jako průmyslový pager */
 body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif !important;
     background:
@@ -301,6 +310,7 @@ body{
     color:var(--tablet-text) !important;
 }
 
+/* Tablet + tenký kovový/černý rámeček */
 .pager-device{
     width:min(1220px,96vw) !important;
     height:min(820px,94vh) !important;
@@ -318,6 +328,7 @@ body{
     overflow:hidden !important;
 }
 
+/* Horní kamera / senzor tabletu */
 .pager-device::before{
     content:"";
     position:absolute;
@@ -334,6 +345,7 @@ body{
     z-index:20;
 }
 
+/* Domovský indikátor */
 .pager-device::after{
     content:"";
     position:absolute;
@@ -349,8 +361,10 @@ body{
     pointer-events:none;
 }
 
+/* Pryč se šroubky */
 .screw{display:none !important;}
 
+/* Horní tabletový status bar */
 .pager-top-panel{
     height:34px !important;
     min-height:34px !important;
@@ -403,6 +417,7 @@ body{
     color:#fff !important;
 }
 
+/* Displej = skutečná plocha tabletu */
 .pager-screen-container{
     padding:0 !important;
     border:1px solid rgba(255,255,255,.10) !important;
@@ -425,6 +440,7 @@ body{
     background-image:none !important;
 }
 
+/* Horní lišta aplikace */
 .screen-header{
     min-height:42px !important;
     padding:0 4px 12px !important;
@@ -457,6 +473,7 @@ body{
     letter-spacing:.5px !important;
 }
 
+/* Obsah */
 .screen-body{
     gap:9px !important;
     color:#d8dee7 !important;
@@ -465,6 +482,7 @@ body{
     padding-right:4px !important;
 }
 
+/* Scrollbar jako moderní OS */
 ::-webkit-scrollbar{width:7px !important;}
 ::-webkit-scrollbar-track{background:transparent !important;}
 ::-webkit-scrollbar-thumb{
@@ -473,6 +491,7 @@ body{
 }
 ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.27) !important;}
 
+/* Menu aplikací */
 .menu-item-row{
     min-height:54px !important;
     margin-bottom:7px !important;
@@ -509,6 +528,7 @@ body{
     box-shadow:0 0 8px rgba(255,83,105,.7) !important;
 }
 
+/* Karty / formuláře */
 .terminal-card,
 .kasa-panel,
 .kasa-summary{
@@ -551,6 +571,7 @@ table th,table td{
 .chat-sender{color:var(--tablet-accent) !important;}
 .chat-time{color:#687382 !important;}
 
+/* Inputy */
 .chat-input,
 .pager-edit-input,
 .pager-select,
@@ -571,6 +592,7 @@ table th,table td{
     box-shadow:0 0 0 3px rgba(103,215,255,.08) !important;
 }
 
+/* Tlačítka vypadají jako touch UI, ne hardware */
 .pager-clean-controls{
     margin:8px 2px 0 !important;
     padding:7px !important;
@@ -659,6 +681,7 @@ table th,table td{
     border-color:rgba(255,92,112,.25) !important;
 }
 
+/* Notifikace jako moderní toast */
 .chat-banner-notification,
 .pager-notification{
     border-radius:12px !important;
@@ -667,6 +690,7 @@ table th,table td{
     box-shadow:0 8px 25px rgba(0,0,0,.2) !important;
 }
 
+/* Modal */
 .image-modal-overlay{
     background:rgba(3,5,9,.78) !important;
     backdrop-filter:blur(10px) !important;
@@ -679,6 +703,7 @@ table th,table td{
     box-shadow:0 25px 70px rgba(0,0,0,.55) !important;
 }
 
+/* Přihlášení / zamčená obrazovka */
 .locked-screen,
 .access-denied-screen,
 .server-admin-screen{
@@ -697,6 +722,7 @@ table th,table td{
     text-shadow:none !important;
 }
 
+/* Footer/status */
 .footer-status{
     margin-top:6px !important;
     padding:0 8px !important;
@@ -708,6 +734,7 @@ table th,table td{
     cursor:pointer !important;
 }
 
+/* Menší displeje */
 @media (max-width:900px){
     .pager-device{
         width:98vw !important;
@@ -739,12 +766,18 @@ table th,table td{
     .footer-status{display:none !important;}
 }
 
-.access-denied-screen {
-    background: rgba(180, 10, 20, 0.35) !important;
-    border: 2px solid rgba(255, 71, 87, 0.5) !important;
-    box-shadow: inset 0 0 50px rgba(255, 0, 0, 0.4) !important;
+/* =========================================================
+       ZDE MÁŠ ČERVENÉ POZADÍ PRO PŘÍSTUP ODEPŘEN
+       ========================================================= */
+    .access-denied-screen {
+        background: rgba(180, 10, 20, 0.35) !important;
+        border: 2px solid rgba(255, 71, 87, 0.5) !important;
+        box-shadow: inset 0 0 50px rgba(255, 0, 0, 0.4) !important;
 }
 
+/* =========================================================
+   TYRKYSOVÉ POZADÍ PRO ZAMČENOU OBRAZOVKU (.locked-screen)
+   ========================================================= */
 .locked-screen {
     background: rgba(0, 150, 180, 0.25) !important;
     border: 2px solid rgba(0, 210, 211, 0.5) !important;
@@ -756,6 +789,7 @@ table th,table td{
     color: #00f2fe !important;
     text-shadow: 0 0 15px rgba(0, 242, 254, 0.8) !important;
 }
+
     </style>
 </head>
 <body>
@@ -821,8 +855,8 @@ table th,table td{
         const SUPABASE_URL = 'https://cwjhohrxadgyrfonoitl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3amhvaHJ4YWRneXJmb25vaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTI2MDUsImV4cCI6MjEwNTM4ODYwNX0.vba_lEHp1xeh49MczvO6dHyUjUYK3BkmWMKoE1PXU1k';
         
-        const DISCORD_CLIENT_ID = "1550863063538733207";
-        const DISCORD_GUILD_ID = "1552778056219893862";
+        const DISCORD_CLIENT_ID = "1550863063538733207"; // dc bot
+        const DISCORD_GUILD_ID = "1552778056219893862"; // discord id
         
         const MIEMBRO_ROLE = "1552778056219893867"; 
         const ADMIN_ROLES = [
@@ -833,7 +867,6 @@ table th,table td{
         ];
         const SECRETARIO_ROLE = "1552778056219893869"; 
         const SERVER_ADMIN_ROLE = "1552778056219893864";
-        const MECHANIC_ROLE = "1569073934769586186";
 
         let supabaseClient = null;
         try {
@@ -855,6 +888,7 @@ table th,table td{
             } catch (e) {}
         }
 
+        // Live hodiny
         function updateLiveClock() {
             const timeEl = document.getElementById('screenTime');
             if (timeEl) {
@@ -867,20 +901,18 @@ table th,table td{
 
         const tabsList = [
             { id: 'livechat', name: '💬 LIVE CHAT KLUBU' },
-            { id: 'nastaveni_nicku', name: '✏️ Nastavit Přezdívku' },
+			{ id: 'nastaveni_nicku', name: '✏️ Nastavit Přezdívku' },
             { id: 'zamestnanci', name: '👥 Složky členů' },
-            { id: 'slevy', name: '🏷️ Slevy' },
-            { id: 'info_dilna', name: '🛠️ Info dílna' },
-            { id: 'pd_opravy', name: '🔧 PD opravy' },
-            { id: 'ems_opravy', name: '🔧 EMS opravy' },
-            { id: 'fd_opravy', name: '🔧 FD opravy' },
+            //{ id: 'kasa', name: '💰 Kasa' },
             { id: 'oznameni', name: '📢 Oznámení' },
-            { id: 'freq', name: '📻 Terminál Freq' },
+			{ id: 'freq', name: '📻 Terminál Freq' },
             { id: 'info', name: 'ℹ️ Info' },
             { id: 'slozky', name: '📁 Složky' },
             { id: 'kaple', name: '⛪ Kaple & Záznamy' },
+            //{ id: 'parking', name: '🚗 Parking' },
             { id: 'pujcky', name: '🤝 [Vedení] Půjčky' },
             { id: 'pokuty', name: '⚠️ [Vedení] Pokuty' },
+            //{ id: 'prodej_meth', name: '🧪 [Vedení] Prodej METH' },
             { id: 'kontakty', name: '📞 Kontakty' }
         ];
 
@@ -892,6 +924,7 @@ table th,table td{
         let loggedInMemberId = null;
         let activeModalImage = null;
 
+        // Pomocná funkce pro filtraci viditelných záložek v menu
         function getVisibleTabs() {
             const hiddenForServerAdmin = ['livechat', 'kasa', 'oznameni', 'slozky', 'prodej_meth'];
             return tabsList.filter(t => {
@@ -901,31 +934,11 @@ table th,table td{
                 if (!state.isAdmin && !state.isServerAdmin && (t.id === 'pujcky' || t.id === 'pokuty' || t.id === 'prodej_meth')) {
                     return false;
                 }
-                
-                // Pokud je uživatel mechanik (a není admin), skryjeme live chat
-                if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
-                    if (t.id === 'livechat') {
-                        return false;
-                    }
-                    const allowedMechanicTabs = ['nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
-                    if (!allowedMechanicTabs.includes(t.id)) {
-                        return false;
-                    }
-                }
-                
-                if (t.id === 'slevy') {
-                    if (!state.isAdmin && !state.isServerAdmin && !state.isMechanic) return false;
-                }
-                
-                const mechanicRooms = ['info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
-                if (mechanicRooms.includes(t.id)) {
-                    if (!state.isMechanic && !state.isAdmin && !state.isServerAdmin) return false;
-                }
-
                 return true;
             });
         }
 
+        // Globální stav notifikace chatu
         let activeChatNotification = null;
         let chatNotificationTimeout = null;
         let isFirstChatFetch = true;
@@ -953,18 +966,12 @@ table th,table td{
             isAdmin: false,
             isSecretario: false,
             isServerAdmin: false,
-            isMechanic: false,
             discordUser: null,
             hasUnreadAnnouncements: true,
             hasUnreadFreq: true,
             currentFreq: "112.5 MHz",
             slozky: [],
             prodej_meth: [],
-            slevy: [],
-            info_dilna: [],
-            pd_opravy: [],
-            ems_opravy: [],
-            fd_opravy: [],
             zamestnanci: [
                 { 
                     id: 1, 
@@ -1004,7 +1011,6 @@ table th,table td{
                 let isAdmin = false;
                 let isSecretario = false;
                 let isServerAdmin = false;
-                let isMechanic = false;
 
                 if (memberRes.ok) {
                     const memberData = await memberRes.json();
@@ -1013,20 +1019,16 @@ table th,table td{
                         const hasAdminRole = memberData.roles.some(roleId => ADMIN_ROLES.includes(roleId));
                         const hasSecretarioRole = memberData.roles.includes(SECRETARIO_ROLE);
                         const hasServerAdminRole = memberData.roles.includes(SERVER_ADMIN_ROLE);
-                        const hasMechanicRole = memberData.roles.includes(MECHANIC_ROLE);
 
                         if (hasServerAdminRole) {
                             hasAccess = true;
                             isServerAdmin = true;
-                        } else if (hasMiembro || hasAdminRole || hasSecretarioRole || hasMechanicRole) {
+                        } else if (hasMiembro || hasAdminRole || hasSecretarioRole) {
                             hasAccess = true;
                             if (hasAdminRole) {
                                 isAdmin = true;
                             } else if (hasSecretarioRole) {
                                 isSecretario = true;
-                            }
-                            if (hasMechanicRole) {
-                                isMechanic = true;
                             }
                         }
                     }
@@ -1038,7 +1040,6 @@ table th,table td{
                 state.isAdmin = isAdmin;
                 state.isSecretario = isSecretario;
                 state.isServerAdmin = isServerAdmin;
-                state.isMechanic = isMechanic;
 
                 const sessionData = {
                     isAuthenticated: true,
@@ -1046,7 +1047,6 @@ table th,table td{
                     isAdmin: isAdmin,
                     isSecretario: isSecretario,
                     isServerAdmin: isServerAdmin,
-                    isMechanic: isMechanic,
                     discordUser: userData.username,
                     token: accessToken
                 };
@@ -1057,6 +1057,8 @@ table th,table td{
             }
         }
 
+        // Znovu ověří Discord role každých 60 sekund.
+        // Použije již uložený OAuth token, takže uživatel nemusí znovu procházet Discord loginem.
         let discordRoleCheckInProgress = false;
 
         async function refreshDiscordRoles() {
@@ -1076,13 +1078,13 @@ table th,table td{
                     isAdmin: state.isAdmin,
                     isSecretario: state.isSecretario,
                     isServerAdmin: state.isServerAdmin,
-                    isMechanic: state.isMechanic,
                     discordUser: state.discordUser
                 };
 
                 const success = await processAndVerifyToken(data.token);
 
                 if (!success) {
+                    // Token už není platný -> vrátíme uživatele na přihlášení.
                     localStorage.removeItem('pager_user_session');
                     discordRoleCheckInProgress = false;
                     logoutDiscord();
@@ -1094,10 +1096,11 @@ table th,table td{
                     oldPermissions.isAdmin !== state.isAdmin ||
                     oldPermissions.isSecretario !== state.isSecretario ||
                     oldPermissions.isServerAdmin !== state.isServerAdmin ||
-                    oldPermissions.isMechanic !== state.isMechanic ||
                     oldPermissions.discordUser !== state.discordUser;
 
                 if (permissionsChanged) {
+                    // Pokud uživatel přišel o oprávnění k právě otevřené záložce,
+                    // zavřeme ji a necháme UI překreslit podle nových Discord rolí.
                     const visibleTabs = getVisibleTabs();
                     const stillAllowed = visibleTabs.some(tab => tab.id === openedTab);
 
@@ -1147,7 +1150,6 @@ table th,table td{
             state.isAdmin = false;
             state.isSecretario = false;
             state.isServerAdmin = false;
-            state.isMechanic = false;
             state.discordUser = null;
             
             window.location.href = window.location.pathname;
@@ -1266,11 +1268,6 @@ table th,table td{
                     const cloudState = appData.data;
                     state.slozky = cloudState.slozky || state.slozky;
                     state.prodej_meth = cloudState.prodej_meth || state.prodej_meth;
-                    state.slevy = cloudState.slevy || state.slevy;
-                    state.info_dilna = cloudState.info_dilna || state.info_dilna;
-                    state.pd_opravy = cloudState.pd_opravy || state.pd_opravy;
-                    state.ems_opravy = cloudState.ems_opravy || state.ems_opravy;
-                    state.fd_opravy = cloudState.fd_opravy || state.fd_opravy;
                     state.zamestnanci = cloudState.zamestnanci || state.zamestnanci;
                     state.oznameni = cloudState.oznameni || state.oznameni;
                     state.info = cloudState.info || state.info;
@@ -1326,11 +1323,6 @@ table th,table td{
                             const cloudState = payload.new.data;
                             state.slozky = cloudState.slozky || state.slozky;
                             state.prodej_meth = cloudState.prodej_meth || state.prodej_meth;
-                            state.slevy = cloudState.slevy || state.slevy;
-                            state.info_dilna = cloudState.info_dilna || state.info_dilna;
-                            state.pd_opravy = cloudState.pd_opravy || state.pd_opravy;
-                            state.ems_opravy = cloudState.ems_opravy || state.ems_opravy;
-                            state.fd_opravy = cloudState.fd_opravy || state.fd_opravy;
                             state.zamestnanci = cloudState.zamestnanci || state.zamestnanci;
                             state.oznameni = cloudState.oznameni || state.oznameni;
                             state.info = cloudState.info || state.info;
@@ -1358,6 +1350,7 @@ table th,table td{
             }
         }, 3000);
 
+        // Kontrola aktuálních Discord rolí každých 60 sekund.
         setInterval(() => {
             refreshDiscordRoles();
         }, 60000);
@@ -1516,43 +1509,7 @@ table th,table td{
             if (!state.hasAccess || state.isServerAdmin) return;
             const author = getCurrentAuthorName();
             
-            if (category === 'slevy') {
-                if (!state.isAdmin && !state.isServerAdmin) return;
-                const title = document.getElementById('slevy_title')?.value;
-                const desc = document.getElementById('slevy_desc')?.value;
-                if (!title || !desc) return;
-                if (editingItemId) {
-                    let item = state.slevy.find(i => i.id === editingItemId);
-                    if (item) { item.title = title; item.desc = desc; }
-                } else {
-                    state.slevy.push({ id: Date.now(), author, title, desc });
-                }
-            } else if (category === 'info_dilna') {
-                if (!state.isAdmin && !state.isServerAdmin) return;
-                const title = document.getElementById('info_dilna_title')?.value;
-                const desc = document.getElementById('info_dilna_desc')?.value;
-                if (!title || !desc) return;
-                if (editingItemId) {
-                    let item = state.info_dilna.find(i => i.id === editingItemId);
-                    if (item) { item.title = title; item.desc = desc; }
-                } else {
-                    state.info_dilna.push({ id: Date.now(), author, title, desc });
-                }
-            } else if (category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') {
-                if (!state.isMechanic && !state.isAdmin && !state.isServerAdmin) return;
-                const title = document.getElementById(`${category}_title`)?.value;
-                const desc = document.getElementById(`${category}_desc`)?.value;
-                if (!title || !desc) return;
-                if (editingItemId) {
-                    let item = state[category].find(i => i.id === editingItemId);
-                    if (item && (state.isAdmin || item.author === author)) {
-                        item.title = title;
-                        item.desc = desc;
-                    }
-                } else {
-                    state[category].push({ id: Date.now(), author, title, desc });
-                }
-            } else if (category === 'slozky') {
+            if (category === 'slozky') {
                 if (state.isServerAdmin) return;
                 const title = document.getElementById('folder_title')?.value;
                 const desc = document.getElementById('folder_desc')?.value;
@@ -1687,9 +1644,6 @@ table th,table td{
 
             let author = getCurrentAuthorName();
 
-            if (category === 'slevy' && !state.isAdmin) return;
-            if (category === 'info_dilna' && !state.isAdmin) return;
-            if ((category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && item.author !== author) return;
             if (category === 'slozky' && !state.isAdmin && item.author !== author) return;
             if (category === 'prodej_meth' && !state.isAdmin) return;
             if (category === 'parking' && !state.isAdmin) return;
@@ -1906,6 +1860,7 @@ table th,table td{
             else if (document.exitFullscreen) document.exitFullscreen();
         }
 
+        // KASA - izolovaná sekce
         const pagerKasaProducts = [
             { name: "Chicano Burger", price: 130, cost: 80, category: "jidlo" },
             { name: "Hot-Dog", price: 120, cost: 80, category: "jidlo" },
@@ -2127,6 +2082,7 @@ table th,table td{
             body.innerHTML = "";
             updateUIState();
 
+            // Aktualizace indikátoru frekvence v liště nahoře (pouze pokud je uživatel přihlášen a má přístup)
             const freqHeaderEl = document.getElementById('headerFreqDisplay');
             if (freqHeaderEl) {
                 if (state.isAuthenticated && state.hasAccess) {
@@ -2194,6 +2150,7 @@ table th,table td{
                 return;
             }
 
+            // Vložení notifikační lišty SMS při nové zprávě
             if (activeChatNotification) {
                 body.innerHTML += `
                     <div class="chat-banner-notification">
@@ -2229,99 +2186,7 @@ table th,table td{
                 title.innerText = `> ${currentTabObj.name.toUpperCase()}`;
                 let contentHTML = "";
 
-                if (openedTab === 'slevy') {
-                    let editItem = state.slevy.find(i => i.id === editingItemId);
-                    if (state.isAdmin || state.isServerAdmin) {
-                        contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="slevy_title" class="pager-edit-input" placeholder="Název slevy / Akce" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="slevy_desc" class="pager-edit-input" placeholder="Podrobnosti o slevě" value="${editItem ? editItem.desc : ''}">
-                            <div style="display:flex; gap:6px;">
-                                <button class="edit-action-btn save-action-btn" onclick="saveItem('slevy')">${editingItemId ? '💾 Uložit' : '+ Přidat slevu'}</button>
-                                ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
-                            </div>
-                        </div>`;
-                    }
-                    if (state.slevy.length === 0) {
-                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím nejsou zadány žádné slevy.</div>`;
-                    } else {
-                        state.slevy.forEach(item => {
-                            let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === getCurrentAuthorName());
-                            contentHTML += `<div class="terminal-card">
-                                <div class="terminal-title">🏷️ ${item.title} <span style="font-size:10px; color:#666;">(Vložil: ${item.author})</span>
-                                    <div class="action-buttons-group">
-                                        ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('slevy', ${item.id})">Upravit</button>` : ''}
-                                        ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('slevy', ${item.id})">Smazat</button>` : ''}
-                                    </div>
-                                </div>
-                                <div style="margin-top: 4px;">${item.desc}</div>
-                            </div>`;
-                        });
-                    }
-                }
-                else if (openedTab === 'info_dilna') {
-                    let editItem = state.info_dilna.find(i => i.id === editingItemId);
-
-                    if (state.isAdmin || state.isServerAdmin) {
-                        contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="info_dilna_title" class="pager-edit-input" placeholder="Nadpis info dílny" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="info_dilna_desc" class="pager-edit-input" placeholder="Obsah informací..." value="${editItem ? editItem.desc : ''}">
-                            <div style="display:flex; gap:6px;">
-                                <button class="edit-action-btn save-action-btn" onclick="saveItem('info_dilna')">${editingItemId ? '💾 Uložit' : '+ Přidat záznam'}</button>
-                                ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
-                            </div>
-                        </div>`;
-                    }
-
-                    if (state.info_dilna.length === 0) {
-                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">V info dílně zatím nejsou žádné záznamy.</div>`;
-                    } else {
-                        state.info_dilna.forEach(item => {
-                            let canEditDel = (state.isAdmin || state.isServerAdmin);
-                            contentHTML += `<div class="terminal-card">
-                                <div class="terminal-title">🛠️ ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
-                                    <div class="action-buttons-group">
-                                        ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('info_dilna', ${item.id})">Upravit</button>` : ''}
-                                        ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('info_dilna', ${item.id})">Smazat</button>` : ''}
-                                    </div>
-                                </div>
-                                <div style="margin-top: 4px;">${item.desc}</div>
-                            </div>`;
-                        });
-                    }
-                }
-                else if (openedTab === 'pd_opravy' || openedTab === 'ems_opravy' || openedTab === 'fd_opravy') {
-                    let currentAuthor = getCurrentAuthorName();
-                    let editItem = state[openedTab].find(i => i.id === editingItemId);
-
-                    if (state.isMechanic || state.isAdmin || state.isServerAdmin) {
-                        contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="${openedTab}_title" class="pager-edit-input" placeholder="Předmět / Vozidlo / Zásah" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="${openedTab}_desc" class="pager-edit-input" placeholder="Popis opravy / Poznámka" value="${editItem ? editItem.desc : ''}">
-                            <div style="display:flex; gap:6px;">
-                                <button class="edit-action-btn save-action-btn" onclick="saveItem('${openedTab}')">${editingItemId ? '💾 Uložit' : '+ Zapsat opravu'}</button>
-                                ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
-                            </div>
-                        </div>`;
-                    }
-
-                    if (state[openedTab].length === 0) {
-                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Žádné záznamy v této složce.</div>`;
-                    } else {
-                        state[openedTab].forEach(item => {
-                            let canEditDel = (state.isAdmin || item.author === currentAuthor);
-                            contentHTML += `<div class="terminal-card">
-                                <div class="terminal-title">🔧 ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
-                                    <div class="action-buttons-group">
-                                        ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('${openedTab}', ${item.id})">Upravit</button>` : ''}
-                                        ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('${openedTab}', ${item.id})">Smazat</button>` : ''}
-                                    </div>
-                                </div>
-                                <div style="margin-top: 4px;">${item.desc}</div>
-                            </div>`;
-                        });
-                    }
-                }
-                else if (openedTab === 'slozky') {
+                if (openedTab === 'slozky') {
                     let editItem = state.slozky.find(i => i.id === editingItemId);
                     let currentAuthor = getCurrentAuthorName();
 
@@ -2507,7 +2372,7 @@ table th,table td{
                             <button class="edit-action-btn save-action-btn" onclick="saveItem('info')">${editingItemId ? '💾 Uložit' : '+ Přidat info'}</button>
                             ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
                         </div>
-                    `;
+                    </div>`;
 
                     state.info.forEach(item => {
                         let canEditDel = (state.isAdmin || item.author === currentAuthor);
