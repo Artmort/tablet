@@ -1157,7 +1157,7 @@ table th,table td{
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content: text })
                 });
-            } catch (e) { console.error("Webhook error:", e); }
+            } catch (e) {}
         }
 
         function loginWithDiscord() {
@@ -1183,9 +1183,7 @@ table th,table td{
             if (!supabaseClient || state.isServerAdmin || state.isMechanic) return;
             try {
                 let { data: chatData, error } = await supabaseClient.from('chat').select('*').order('created_at', { ascending: true });
-                if (error) {
-                    return;
-                }
+                if (error) return;
                 if (chatData) {
                     let hasNewMessage = false;
                     let lastNewMsg = null;
@@ -1249,30 +1247,6 @@ table th,table td{
 
             if (!state.isAuthenticated) {
                 await loadSessionFromStorage();
-            }
-
-            // Načtení z lokálního úložiště jako záloha pro případ selhání DB kvůli RLS
-            const localFallback = localStorage.getItem('pager_local_state_backup');
-            if (localFallback) {
-                try {
-                    const parsed = JSON.parse(localFallback);
-                    state.slozky = parsed.slozky || state.slozky;
-                    state.prodej_meth = parsed.prodej_meth || state.prodej_meth;
-                    state.slevy = parsed.slevy || state.slevy;
-                    state.info_dilna = parsed.info_dilna || state.info_dilna;
-                    state.pd_opravy = parsed.pd_opravy || state.pd_opravy;
-                    state.ems_opravy = parsed.ems_opravy || state.ems_opravy;
-                    state.fd_opravy = parsed.fd_opravy || state.fd_opravy;
-                    state.zamestnanci = parsed.zamestnanci || state.zamestnanci;
-                    state.oznameni = parsed.oznameni || state.oznameni;
-                    state.info = parsed.info || state.info;
-                    state.kaple = parsed.kaple || state.kaple;
-                    state.parking = parsed.parking || state.parking;
-                    state.pujcky = parsed.pujcky || state.pujcky;
-                    state.pokuty = parsed.pokuty || state.pokuty;
-                    state.kontakty = parsed.kontakty || state.kontakty;
-                    state.currentFreq = parsed.currentFreq || state.currentFreq;
-                } catch(e) {}
             }
 
             if (!supabaseClient) { render(); return; }
@@ -1361,27 +1335,18 @@ table th,table td{
                     })
                     .subscribe();
 
-                document.getElementById('cloudStatus').innerText = "SYNCHRONIZACE: LIVE (ONLINE)";
+                document.getElementById('cloudStatus').innerText = "SYNCHRONIZACE: LIVE (REALTIME)";
             } catch (err) {
-                document.getElementById('cloudStatus').innerText = "SYNCHRONIZACE: LOKÁLNÍ REŽIM";
+                document.getElementById('cloudStatus').innerText = "SYNCHRONIZACE: CHYBA PŘIPOJENÍ";
             }
             render();
         }
-
-        setInterval(() => {
-            if (state.hasAccess && !state.isServerAdmin && !state.isMechanic) {
-                fetchChatMessages(openedTab === 'livechat');
-            }
-        }, 3000);
 
         setInterval(() => {
             refreshDiscordRoles();
         }, 60000);
 
         async function saveCloudState() {
-            // Vždy uložit lokálně jako zálohu pro okamžitou funkčnost
-            localStorage.setItem('pager_local_state_backup', JSON.stringify(state));
-
             if (!supabaseClient || !state.hasAccess || state.isServerAdmin) return;
             try {
                 await supabaseClient.from('app_data').upsert({ key: 'main_state', data: state });
@@ -1427,7 +1392,6 @@ table th,table td{
             
             sendWebhookMessage(`💬 **[IC Pager Chat]** \`${senderName}\`: ${textVal}`);
             playBeep(850, 0.05, 'triangle', 0.04);
-            fetchChatMessages(true);
         }
 
         function scrollToBottomChat() {
