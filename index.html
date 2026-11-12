@@ -868,7 +868,7 @@ table th,table td{
         const tabsList = [
             { id: 'livechat', name: '💬 LIVE CHAT KLUBU' },
             { id: 'nastaveni_nicku', name: '✏️ Nastavit Přezdívku' },
-            { id: 'zamestnanci', name: '👥 Složky členů' },
+            { id: 'zamestnanci', name: '👥 Složky zaměstnanců' },
             { id: 'slevy', name: '🏷️ Slevy' },
             { id: 'info_dilna', name: '🛠️ Info dílna' },
             { id: 'pd_opravy', name: '🔧 PD opravy' },
@@ -903,7 +903,7 @@ table th,table td{
                 }
                 
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
-                    const allowedMechanicTabs = ['livechat', 'nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
+                    const allowedMechanicTabs = ['nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
                     if (!allowedMechanicTabs.includes(t.id)) {
                         return false;
                     }
