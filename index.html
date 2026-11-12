@@ -918,11 +918,14 @@ table th,table td{
                     return false;
                 }
                 
-                // Pokud je uživatel čistě mechanik (a NENÍ zároveň admin, sekretář nebo server admin),
-                // omezíme mu záložky na jeho povolený seznam. Pokud má ale např. roli Rider/člen a k tomu Mechanic, 
-                // projde běžnou filtrací a uvidí vše jako normální člen + navíc mechanické místnosti.
+                // Pokud má uživatel roli Mechanic (a není čistý admin/sekretář/server admin),
+                // povolíme mu kompletní základní členské záložky + mechanické místnosti.
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin && !state.isSecretario) {
-                    const allowedMechanicTabs = ['livechat', 'nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy', 'freq', 'info', 'kontakty'];
+                    const allowedMechanicTabs = [
+                        'livechat', 'nastaveni_nicku', 'zamestnanci', 'slevy', 
+                        'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy', 
+                        'oznameni', 'freq', 'info', 'slozky', 'kaple', 'kontakty'
+                    ];
                     if (!allowedMechanicTabs.includes(t.id)) {
                         return false;
                     }
@@ -2696,7 +2699,7 @@ table th,table td{
                             ${state.isAdmin ? `<td>
                                 <div class="action-buttons-group">
                                     <button class="edit-action-btn" onclick="startEditing('prodej_meth', ${item.id})">Upravit</button>
-                                    <button class="edit-action-btn delete-action-btn" onclick="deleteItem('prodej_meth', ${item.id})">Smazat</button>
+                                    <button class="edit-action-btn delete-action-dfn delete-action-btn" onclick="deleteItem('prodej_meth', ${item.id})">Smazat</button>
                                 </div>
                             </td>` : ''}
                         </tr>`;
