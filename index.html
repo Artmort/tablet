@@ -910,6 +910,10 @@ table th,table td{
 
         function getVisibleTabs() {
             const hiddenForServerAdmin = ['livechat', 'kasa', 'oznameni', 'slozky', 'prodej_meth'];
+            
+            // Seznam záložek, které jsou čistě mechanické místnosti
+            const mechanicRooms = ['info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
+
             return tabsList.filter(t => {
                 if (state.isServerAdmin && hiddenForServerAdmin.includes(t.id)) {
                     return false;
@@ -918,26 +922,19 @@ table th,table td{
                     return false;
                 }
                 
-                // Pokud má uživatel roli Mechanic (a není čistý admin/sekretář/server admin),
-                // povolíme mu kompletní základní členské záložky + mechanické místnosti.
-                if (state.isMechanic && !state.isAdmin && !state.isServerAdmin && !state.isSecretario) {
-                    const allowedMechanicTabs = [
-                        'livechat', 'nastaveni_nicku', 'zamestnanci', 'slevy', 
-                        'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy', 
-                        'oznameni', 'freq', 'info', 'slozky', 'kaple', 'kontakty'
-                    ];
-                    if (!allowedMechanicTabs.includes(t.id)) {
-                        return false;
-                    }
+                // Pokud má uživatel POUZE roli Mechanic (a není admin), uvidí výhradně mechanické místnosti
+                if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
+                    return mechanicRooms.includes(t.id);
                 }
                 
-                if (t.id === 'slevy') {
-                    if (!state.isAdmin && !state.isServerAdmin && !state.isMechanic) return false;
-                }
-                
-                const mechanicRooms = ['info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
+                // Mechanické místnosti uvidí kdokoli, kdo má roli Mechanic, nebo admin
                 if (mechanicRooms.includes(t.id)) {
-                    if (!state.isMechanic && !state.isAdmin && !state.isServerAdmin) return false;
+                    return state.isMechanic || state.isAdmin || state.isServerAdmin;
+                }
+
+                // Záložka slevy (pokud ji chcete vázat na mechaniky/vedení)
+                if (t.id === 'slevy') {
+                    return state.isAdmin || state.isServerAdmin || state.isMechanic;
                 }
 
                 return true;
@@ -2699,7 +2696,7 @@ table th,table td{
                             ${state.isAdmin ? `<td>
                                 <div class="action-buttons-group">
                                     <button class="edit-action-btn" onclick="startEditing('prodej_meth', ${item.id})">Upravit</button>
-                                    <button class="edit-action-btn delete-action-dfn delete-action-btn" onclick="deleteItem('prodej_meth', ${item.id})">Smazat</button>
+                                    <button class="edit-action-btn delete-action-btn" onclick="deleteItem('prodej_meth', ${item.id})">Smazat</button>
                                 </div>
                             </td>` : ''}
                         </tr>`;
