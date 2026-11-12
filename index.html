@@ -819,7 +819,7 @@ table th,table td{
 
     <script>
         const SUPABASE_URL = 'https://cwjhohrxadgyrfonoitl.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3amhvaHJ4YWRneXJmb25vaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTI2MDUsImV4cCI6MjEwNTM4ODYwNX0.vba_lEHp1xeh49MczvO6dHyUjUYK3BkmWMKoE1PXU1k';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3amhvaHJ4YWRgyJmb25vaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTI2MDUsImV4cCI6MjEwNTM4ODYwNX0.vba_lEHp1xeh49MczvO6dHyUjUYK3BkmWMKoE1PXU1k';
         
         const DISCORD_CLIENT_ID = "1550863063538733207";
         const DISCORD_GUILD_ID = "1552778056219893862";
@@ -902,7 +902,6 @@ table th,table td{
                     return false;
                 }
                 
-                // Mechanik nesmí vidět livechat
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
                     const allowedMechanicTabs = ['nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
                     if (!allowedMechanicTabs.includes(t.id)) {
@@ -1542,7 +1541,7 @@ table th,table td{
                 if (!title || !desc) return;
                 if (editingItemId) {
                     let item = state[category].find(i => i.id === editingItemId);
-                    if (item && (state.isAdmin || item.author === author)) {
+                    if (item && (state.isAdmin || state.isServerAdmin || item.author === author)) {
                         item.title = title;
                         item.desc = desc;
                     }
@@ -1666,7 +1665,7 @@ table th,table td{
                 if (!name || !phone) return;
                 if (editingItemId) {
                     let item = state.kontakty.find(i => i.id === editingItemId);
-                    if (item && (state.isAdmin || item.author === author)) { 
+                    if (item && (state.isAdmin || !item.author || item.author === author)) { 
                         item.name = name; 
                         item.phone = phone; 
                         item.note = note; 
@@ -1688,10 +1687,10 @@ table th,table td{
 
             let author = getCurrentAuthorName();
 
-            if (category === 'slevy' && !state.isAdmin) return;
-            if (category === 'info_dilna' && !state.isAdmin) return;
-            if ((category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && item.author !== author) return;
-            if (category === 'slozky' && !state.isAdmin && item.author !== author) return;
+            if (category === 'slevy' && !state.isAdmin && !state.isServerAdmin) return;
+            if (category === 'info_dilna' && !state.isAdmin && !state.isServerAdmin) return;
+            if ((category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && !state.isServerAdmin && item.author !== author) return;
+            if (category === 'slozky' && !state.isAdmin && !state.isServerAdmin && item.author !== author) return;
             if (category === 'prodej_meth' && !state.isAdmin) return;
             if (category === 'parking' && !state.isAdmin) return;
             if (category === 'kaple' && !state.isAdmin && !state.isSecretario) return;
@@ -1699,7 +1698,7 @@ table th,table td{
             if (category === 'pokuty' && !state.isAdmin) return;
             if (category === 'oznameni' && !state.isAdmin) return;
             if (category === 'info' && !state.isAdmin && item.author !== author) return;
-            if (category === 'kontakty' && !state.isAdmin && item.author !== author) return;
+            if (category === 'kontakty' && !state.isAdmin && item.author && item.author !== author) return;
 
             state[category] = state[category].filter(i => i.id !== id);
             saveCloudState();
@@ -2246,7 +2245,7 @@ table th,table td{
                         contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím nejsou zadány žádné slevy.</div>`;
                     } else {
                         state.slevy.forEach(item => {
-                            let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === getCurrentAuthorName());
+                            let canEditDel = (state.isAdmin || state.isServerAdmin);
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">🏷️ ${item.title} <span style="font-size:10px; color:#666;">(Vložil: ${item.author})</span>
                                     <div class="action-buttons-group">
@@ -2309,7 +2308,7 @@ table th,table td{
                         contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Žádné záznamy v této složce.</div>`;
                     } else {
                         state[openedTab].forEach(item => {
-                            let canEditDel = (state.isAdmin || item.author === currentAuthor);
+                            let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">🔧 ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
                                     <div class="action-buttons-group">
@@ -2344,7 +2343,7 @@ table th,table td{
                         contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím nebyly založeny žádné složky.</div>`;
                     } else {
                         state.slozky.forEach(item => {
-                            let canEditDel = (state.isAdmin || item.author === currentAuthor);
+                            let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">📁 ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
                                     <div class="action-buttons-group">
