@@ -835,7 +835,7 @@ table th,table td{
 
     <script>
         const SUPABASE_URL = 'https://cwjhohrxadgyrfonoitl.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3amhvaHJ4YWRneXJmb25vaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTI2MDUsImV4cCI6MjEwNTM4ODYwNX0.vba_lEHp1xeh49MczvO6dHyUjUYK3BkmWMKoE1PXU1k';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3amhvaHJ4YWRgyJmb25vaXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTI2MDUsImV4cCI6MjEwNTM4ODYwNX0.vba_lEHp1xeh49MczvO6dHyUjUYK3BkmWMKoE1PXU1k';
         
         const DISCORD_CLIENT_ID = "1550863063538733207";
         const DISCORD_GUILD_ID = "1552778056219893862";
@@ -918,11 +918,11 @@ table th,table td{
                     return false;
                 }
                 
-                if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
-                    if (t.id === 'livechat') {
-                        return false;
-                    }
-                    const allowedMechanicTabs = ['nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
+                // Pokud je uživatel čistě mechanik (a NENÍ zároveň admin, sekretář nebo server admin),
+                // omezíme mu záložky na jeho povolený seznam. Pokud má ale např. roli Rider/člen a k tomu Mechanic, 
+                // projde běžnou filtrací a uvidí vše jako normální člen + navíc mechanické místnosti.
+                if (state.isMechanic && !state.isAdmin && !state.isServerAdmin && !state.isSecretario) {
+                    const allowedMechanicTabs = ['livechat', 'nastaveni_nicku', 'zamestnanci', 'slevy', 'info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy', 'freq', 'info', 'kontakty'];
                     if (!allowedMechanicTabs.includes(t.id)) {
                         return false;
                     }
