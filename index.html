@@ -2305,8 +2305,8 @@ table th,table td{
 
                     if (state.hasAccess) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="${openedTab}_title" class="pager-edit-input" placeholder="Předmět / Vozidlo / Zásah" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="${openedTab}_desc" class="pager-edit-input" placeholder="Popis opravy / Poznámka" value="${editItem ? editItem.desc : ''}">
+                            <input type="text" id="${openedTab}_title" class="pager-edit-input" placeholder="Číslo odznaku" value="${editItem ? editItem.title : ''}">
+                            <input type="text" id="${openedTab}_desc" class="pager-edit-input" placeholder="Popis opravy / Částka" value="${editItem ? editItem.desc : ''}">
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('${openedTab}')">${editingItemId ? '💾 Uložit' : '+ Zapsat opravu'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2537,7 +2537,7 @@ table th,table td{
                         <div class="terminal-card">
                             <div class="terminal-title">📻 AKTUÁLNÍ FREKVENCE SYSTÉMU</div>
                             <div style="font-size: 20px; font-weight: bold; color: #f39c12; margin: 10px 0;">${state.currentFreq || "112.5 MHz"}</div>
-                            <div style="font-size: 12px; color: #8e9297; margin-bottom: 10px;">Změna frekvence v celém pagerovém systému:</div>
+                            <div style="font-size: 12px; color: #8e9297; margin-bottom: 10px;">Změna frekvence v celém toshira systému:</div>
                             <input type="text" id="freqInput" class="pager-edit-input" placeholder="Např. 115.8 MHz" value="${state.currentFreq || ''}" style="margin-bottom: 10px;" autocomplete="off">
                             <button class="edit-action-btn save-action-btn" onclick="updateFrequency()">NASTAVIT NOVOU FREKVENCI</button>
                         </div>
