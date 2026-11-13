@@ -210,12 +210,12 @@
         th, td { padding: 8px 12px; text-align: left; border-bottom: 1px dotted #18331a; font-size: 14px; }
         th { color: #f39c12; text-transform: uppercase; }
 
-        .chat-message { background: rgba(0, 20, 8, 0.4); border-left: 3px solid #3db52c; padding: 8px 12px; border-radius: 4px; font-size: 13px; }
+        .chat-message { background: rgba(0, 20, 8, 0.4); border-left: 3px solid #3db52c; padding: 8px 12px; border-radius: 4px; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
         .chat-message.admin-msg { border-left-color: #f39c12; background: rgba(40, 25, 0, 0.3); }
         .chat-sender { font-weight: bold; color: #f39c12; margin-bottom: 2px; font-size: 12px; display: flex; justify-content: space-between; }
         .chat-time { color: #555; font-size: 11px; }
         .chat-input-box, .simple-form-box { display: flex; gap: 8px; margin-top: 10px; border-top: 1px dashed #18331a; padding-top: 10px; flex-direction: column; }
-        .chat-input, .pager-edit-input, .pager-select { background: #020503; border: 1px solid #1f3a20; border-radius: 4px; color: #4cd137; font-family: 'Courier New', Courier, monospace; padding: 6px 10px; font-size: 13px; outline: none; width: 100%; }
+        .chat-input, .pager-edit-input, .pager-select { background: #020503; border: 1px solid #1f3a20; border-radius: 4px; color: #4cd137; font-family: 'Courier New', Courier, monospace; padding: 6px 10px; font-size: 13px; outline: none; width: 100%; resize: vertical; min-height: 38px; }
         
         .footer-status { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: #555; padding: 0 4px; }
         .fs-toggle { background: #1c1e22; border: 1px solid #333; color: #8e9297; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
@@ -555,6 +555,8 @@ table th,table td{
     border-left:3px solid var(--tablet-accent) !important;
     border-radius:10px !important;
     padding:10px 12px !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
 }
 
 .chat-message.admin-msg{
@@ -575,6 +577,8 @@ table th,table td{
     border-radius:10px !important;
     padding:9px 11px !important;
     font-family:inherit !important;
+    resize: vertical !important;
+    min-height: 40px !important;
 }
 
 .chat-input:focus,
@@ -1896,7 +1900,7 @@ table th,table td{
             if (activeModalImage !== null) { if (e.key === 'Escape' || e.key === 'Enter') closeImageModal(); return; }
             if (isFlipped) { if (e.key === 'Escape') toggleFlip(); return; }
             if (openedTab === 'livechat' && document.activeElement?.id === 'chatInputField' && !state.isServerAdmin) {
-                if (e.key === 'Enter') { sendChatMessage(); e.preventDefault(); }
+                if (e.key === 'Enter' && e.ctrlKey) { sendChatMessage(); e.preventDefault(); }
                 return;
             }
             if (isTyping) return;
@@ -2082,7 +2086,7 @@ table th,table td{
             if (showCustomProductForm) {
                 h+=`<div class="simple-form-box" style="margin-bottom:10px;">
                     <div style="font-size:11px; color:#f39c12; font-weight:bold; margin-bottom:4px;">ZADÁNÍ VLASTNÍ POLOŽKY</div>
-                    <input type="text" id="customProdName" class="pager-edit-input" placeholder="Název položky..." style="margin-bottom:5px;">
+                    <textarea id="customProdName" class="pager-edit-input" placeholder="Název položky..." style="margin-bottom:5px;"></textarea>
                     <input type="number" id="customProdPrice" class="pager-edit-input" placeholder="Prodejní cena ($)..." style="margin-bottom:5px;">
                     <input type="number" id="customProdCost" class="pager-edit-input" placeholder="Nákupní cena pro firmu ($)..." style="margin-bottom:5px;">
                     <div style="display:flex; gap:6px;">
@@ -2094,7 +2098,7 @@ table th,table td{
 
             h+='</div>';
             h+='<div class="kasa-panel"><div class="kasa-section-title">Účtenka</div>';
-            h+=`<input id="pagerKasaClient" class="kasa-client" placeholder="Jméno zaměstnance / zákazníka..." value="${pagerKasaActiveBill>-1?(pagerKasaBills[pagerKasaActiveBill]?.name||''):''}">`;
+            h+=`<textarea id="pagerKasaClient" class="kasa-client" placeholder="Jméno zaměstnance / zákazníka...">${pagerKasaActiveBill>-1?(pagerKasaBills[pagerKasaActiveBill]?.name||''):''}</textarea>`;
             h+='<div class="kasa-items">';
             if(!pagerKasaCart.length) h+='<div style="opacity:.45;padding:12px;text-align:center;font-size:11px;">Účtenka je prázdná.</div>';
             pagerKasaCart.forEach((item,i)=>{h+=`<div class="kasa-item"><div style="flex:1"><b>${item.name}</b><br><span style="color:#f39c12">${item.price*item.qty} $</span></div><div class="kasa-qty"><button class="kasa-mini" onclick="kasaChangeQty(${i},-1)">-</button><span>${item.qty}x</span><button class="kasa-mini" onclick="kasaChangeQty(${i},1)">+</button></div></div>`;});
@@ -2240,8 +2244,8 @@ table th,table td{
                     
                     if (state.isAdmin || state.isServerAdmin) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="slevy_title" class="pager-edit-input" placeholder="Název slevy / Akce" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="slevy_desc" class="pager-edit-input" placeholder="Podrobnosti o slevě" value="${editItem ? editItem.desc : ''}">
+                            <textarea id="slevy_title" class="pager-edit-input" placeholder="Název slevy / Akce">${editItem ? editItem.title : ''}</textarea>
+                            <textarea id="slevy_desc" class="pager-edit-input" placeholder="Podrobnosti o slevě">${editItem ? editItem.desc : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('slevy')">${editingItemId ? '💾 Uložit' : '+ Přidat slevu'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2263,7 +2267,7 @@ table th,table td{
                                         ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('slevy', ${item.id})">Smazat</button>` : ''}
                                     </div>
                                 </div>
-                                <div style="margin-top: 4px;">${item.desc}</div>
+                                <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;">${item.desc}</div>
                             </div>`;
                         });
                     }
@@ -2273,8 +2277,8 @@ table th,table td{
 
                     if (state.isAdmin || state.isServerAdmin) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="info_dilna_title" class="pager-edit-input" placeholder="Nadpis info dílny" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="info_dilna_desc" class="pager-edit-input" placeholder="Obsah informací..." value="${editItem ? editItem.desc : ''}">
+                            <textarea id="info_dilna_title" class="pager-edit-input" placeholder="Nadpis info dílny">${editItem ? editItem.title : ''}</textarea>
+                            <textarea id="info_dilna_desc" class="pager-edit-input" placeholder="Obsah informací...">${editItem ? editItem.desc : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('info_dilna')">${editingItemId ? '💾 Uložit' : '+ Přidat záznam'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2294,7 +2298,7 @@ table th,table td{
                                         ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('info_dilna', ${item.id})">Smazat</button>` : ''}
                                     </div>
                                 </div>
-                                <div style="margin-top: 4px;">${item.desc}</div>
+                                <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;">${item.desc}</div>
                             </div>`;
                         });
                     }
@@ -2305,8 +2309,8 @@ table th,table td{
 
                     if (state.hasAccess) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="${openedTab}_title" class="pager-edit-input" placeholder="Číslo odznaku" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="${openedTab}_desc" class="pager-edit-input" placeholder="Popis opravy / Částka" value="${editItem ? editItem.desc : ''}">
+                            <textarea id="${openedTab}_title" class="pager-edit-input" placeholder="Číslo odznaku">${editItem ? editItem.title : ''}</textarea>
+                            <textarea id="${openedTab}_desc" class="pager-edit-input" placeholder="Popis opravy / Částka">${editItem ? editItem.desc : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('${openedTab}')">${editingItemId ? '💾 Uložit' : '+ Zapsat opravu'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2326,7 +2330,7 @@ table th,table td{
                                         ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('${openedTab}', ${item.id})">Smazat</button>` : ''}
                                     </div>
                                 </div>
-                                <div style="margin-top: 4px;">${item.desc}</div>
+                                <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;">${item.desc}</div>
                             </div>`;
                         });
                     }
@@ -2336,13 +2340,13 @@ table th,table td{
                     let currentAuthor = getCurrentAuthorName();
 
                     contentHTML += `<div class="simple-form-box">
-                        <input type="text" id="folder_title" class="pager-edit-input" placeholder="Nadpis složky" value="${editItem ? editItem.title : ''}">
-                        <input type="text" id="folder_desc" class="pager-edit-input" placeholder="Popis složky" value="${editItem ? editItem.desc : ''}">
-                        <input type="text" id="folder_photo_1" class="pager-edit-input" placeholder="Link na fotku 1 (volitelné)" value="${editItem && editItem.photos ? editItem.photos[0] || '' : ''}">
-                        <input type="text" id="folder_photo_2" class="pager-edit-input" placeholder="Link na fotku 2 (volitelné)" value="${editItem && editItem.photos ? editItem.photos[1] || '' : ''}">
-                        <input type="text" id="folder_photo_3" class="pager-edit-input" placeholder="Link na fotku 3 (volitelné)" value="${editItem && editItem.photos ? editItem.photos[2] || '' : ''}">
-                        <input type="text" id="folder_photo_4" class="pager-edit-input" placeholder="Link na fotku 4 (volitelné)" value="${editItem && editItem.photos ? editItem.photos[3] || '' : ''}">
-                        <input type="text" id="folder_photo_5" class="pager-edit-input" placeholder="Link na fotku 5 (volitelné)" value="${editItem && editItem.photos ? editItem.photos[4] || '' : ''}">
+                        <textarea id="folder_title" class="pager-edit-input" placeholder="Nadpis složky">${editItem ? editItem.title : ''}</textarea>
+                        <textarea id="folder_desc" class="pager-edit-input" placeholder="Popis složky">${editItem ? editItem.desc : ''}</textarea>
+                        <textarea id="folder_photo_1" class="pager-edit-input" placeholder="Link na fotku 1 (volitelné)">${editItem && editItem.photos ? editItem.photos[0] || '' : ''}</textarea>
+                        <textarea id="folder_photo_2" class="pager-edit-input" placeholder="Link na fotku 2 (volitelné)">${editItem && editItem.photos ? editItem.photos[1] || '' : ''}</textarea>
+                        <textarea id="folder_photo_3" class="pager-edit-input" placeholder="Link na fotku 3 (volitelné)">${editItem && editItem.photos ? editItem.photos[2] || '' : ''}</textarea>
+                        <textarea id="folder_photo_4" class="pager-edit-input" placeholder="Link na fotku 4 (volitelné)">${editItem && editItem.photos ? editItem.photos[3] || '' : ''}</textarea>
+                        <textarea id="folder_photo_5" class="pager-edit-input" placeholder="Link na fotku 5 (volitelné)">${editItem && editItem.photos ? editItem.photos[4] || '' : ''}</textarea>
                         <div style="display:flex; gap:6px;">
                             <button class="edit-action-btn save-action-btn" onclick="saveItem('slozky')">${editingItemId ? '💾 Uložit' : '+ Založit složku'}</button>
                             ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2361,7 +2365,7 @@ table th,table td{
                                         ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('slozky', ${item.id})">Smazat</button>` : ''}
                                     </div>
                                 </div>
-                                <div style="margin-bottom:8px;">${item.desc}</div>`;
+                                <div style="margin-bottom:8px; white-space: pre-wrap; word-break: break-word;">${item.desc}</div>`;
                             if (item.photos && item.photos.length > 0) {
                                 contentHTML += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">`;
                                 item.photos.forEach((ph, idx) => {
@@ -2375,14 +2379,14 @@ table th,table td{
                 }
                 else if (openedTab === 'livechat') {
                     contentHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <span style="font-size:11px; color:#8e9297;">Odesíláno pod tvojí přezdívkou</span>
+                        <span style="font-size:11px; color:#8e9297;">Odesíláno pod tvojí přezdívkou (Enter = nový řádek, Ctrl+Enter = odeslat)</span>
                         ${state.isAdmin ? `<button class="edit-action-btn delete-action-btn" onclick="clearChatDatabase()" style="font-size:10px; padding:3px 8px;">[🗑️ SMAZAT CHAT]</button>` : ''}
                     </div>`;
                     contentHTML += `<div id="chatMessagesContainer" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">`;
                     chatMessages.forEach(msg => {
                         contentHTML += `<div class="chat-message ${msg.isAdmin ? 'admin-msg' : ''}"><div class="chat-sender"><span>${msg.sender}</span><span class="chat-time">${msg.time}</span></div><div>${msg.text}</div></div>`;
                     });
-                    contentHTML += `</div><div class="chat-input-box"><input type="text" id="chatInputField" class="chat-input" placeholder="Napiš zprávu..." autocomplete="off"><button class="hw-btn ok-btn" onclick="sendChatMessage()" style="height:38px;">ODESLAT</button></div>`;
+                    contentHTML += `</div><div class="chat-input-box"><textarea id="chatInputField" class="chat-input" placeholder="Napiš zprávu..." autocomplete="off"></textarea><button class="hw-btn ok-btn" onclick="sendChatMessage()" style="height:38px;">ODESLAT</button></div>`;
                 }
                 else if (openedTab === 'nastaveni_nicku') {
                     const currentNick = localStorage.getItem('pager_custom_ic_nick') || getCurrentAuthorName();
@@ -2391,7 +2395,7 @@ table th,table td{
                             <div class="terminal-title">✏️ TRVALÉ NASTAVENÍ PŘEZDÍVKY</div>
                             <div style="font-size: 13px; margin-bottom: 8px; color: #a3e635;">Aktuálně vystupuješ jako: <b>${currentNick}</b></div>
                             <div style="font-size: 12px; margin-bottom: 10px; color: #8e9297;">Zadej svou novou přezdívku:</div>
-                            <input type="text" id="customNickInput" class="pager-edit-input" placeholder="Např. John Miller" value="${currentNick !== 'Neznámý člen' ? currentNick : ''}" style="margin-bottom: 10px;" autocomplete="off">
+                            <textarea id="customNickInput" class="pager-edit-input" placeholder="Např. John Miller" style="margin-bottom: 10px;" autocomplete="off">${currentNick !== 'Neznámý člen' ? currentNick : ''}</textarea>
                             <button class="edit-action-btn save-action-btn" onclick="saveCustomIcNickname()">ULOŽIT PŘEZDÍVKU</button>
                         </div>
                     `;
@@ -2403,7 +2407,7 @@ table th,table td{
                         contentHTML += `<div class="terminal-card">
                             <div class="terminal-title"> 🔐 VYTVOŘENÍ TVÉ JEDINÉ SLOŽKY</div>
                             <div style="font-size: 13px; margin-bottom: 8px; color: #a3e635;">Zatím nemáš vytvořenou osobní složku. Každý člen může mít právě jednu.</div>
-                            <input type="text" id="newMemberNameInput" class="pager-edit-input" placeholder="Tvoje jméno..." style="margin-bottom: 10px;" autocomplete="off">
+                            <textarea id="newMemberNameInput" class="pager-edit-input" placeholder="Tvoje jméno..." style="margin-bottom: 10px;" autocomplete="off"></textarea>
                             <button class="edit-action-btn save-action-btn" onclick="createMemberFolder()">VYTVOŘIT MOJI SLOŽKU</button>
                         </div>`;
                         body.innerHTML += contentHTML;
@@ -2428,8 +2432,8 @@ table th,table td{
                             
                             contentHTML += `<div class="terminal-card">
                                 <div class="terminal-title">📋 OSOBNÍ ÚDAJE</div>
-                                <div style="font-size: 13px; margin-bottom: 6px;"><b>Telefon:</b> ${state.isServerAdmin ? emp.phone : `<input type="text" id="edit_emp_phone" class="pager-edit-input" value="${emp.phone || ''}" placeholder="Tvé telefonní číslo" style="display:inline-block; width:220px; margin-left:10px;">`}</div>
-                                <div style="font-size: 13px; margin-bottom: 8px;"><b>Bankovní účet:</b> ${state.isServerAdmin ? emp.bank : `<input type="text" id="edit_emp_bank" class="pager-edit-input" value="${emp.bank || ''}" placeholder="Tvé číslo účtu" style="display:inline-block; width:220px; margin-left:10px;">`}</div>
+                                <div style="font-size: 13px; margin-bottom: 6px;"><b>Telefon:</b> ${state.isServerAdmin ? emp.phone : `<textarea id="edit_emp_phone" class="pager-edit-input" placeholder="Tvé telefonní číslo" style="display:inline-block; width:220px; margin-left:10px; vertical-align:middle;">${emp.phone || ''}</textarea>`}</div>
+                                <div style="font-size: 13px; margin-bottom: 8px;"><b>Bankovní účet:</b> ${state.isServerAdmin ? emp.bank : `<textarea id="edit_emp_bank" class="pager-edit-input" placeholder="Tvé číslo účtu" style="display:inline-block; width:220px; margin-left:10px; vertical-align:middle;">${emp.bank || ''}</textarea>`}</div>
                                 ${!state.isServerAdmin ? `<button class="edit-action-btn save-action-btn" onclick="saveEmployeeDetails()">Uložit kontaktní údaje</button>` : ''}
                             </div>`;
 
@@ -2437,8 +2441,8 @@ table th,table td{
                             
                             if (!state.isServerAdmin && (state.isAdmin || emp.ownerDiscord === state.discordUser)) {
                                 contentHTML += `<div class="simple-form-box">
-                                    <input type="text" id="zaznam_title" class="pager-edit-input" placeholder="Popis věci / oznámení">
-                                    <input type="text" id="zaznam_proof" class="pager-edit-input" placeholder="URL odkaz na fotku / důkaz">
+                                    <textarea id="zaznam_title" class="pager-edit-input" placeholder="Popis věci / oznámení"></textarea>
+                                    <textarea id="zaznam_proof" class="pager-edit-input" placeholder="URL odkaz na fotku / důkaz"></textarea>
                                     <button class="edit-action-btn save-action-btn" onclick="addZaznamToEmployee(${emp.id})">+ Přidat položku</button>
                                 </div>`;
                             }
@@ -2448,7 +2452,7 @@ table th,table td{
                             } else {
                                 emp.zaznamy.forEach(z => {
                                     contentHTML += `<div class="terminal-card">
-                                        <div class="terminal-title">📌 ${z.title}
+                                        <div class="terminal-title"><span style="white-space: pre-wrap; word-break: break-word;">📌 ${z.title}</span>
                                             ${(state.isAdmin || emp.ownerDiscord === state.discordUser) ? `<button class="edit-action-btn delete-action-btn" onclick="deleteZaznam(${emp.id},${z.id})">Smazat</button>` : ''}
                                         </div>
                                         ${z.proofUrl ? `<div style="margin-top:6px;"><button class="edit-action-btn save-action-btn" onclick="showImageModal('${z.proofUrl}')">🔍 Zobrazit důkaz v okénku</button></div>` : ''}
@@ -2482,8 +2486,8 @@ table th,table td{
 
                     if (state.isAdmin && !state.isServerAdmin) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="ann_title" class="pager-edit-input" placeholder="Nadpis oznámení" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="ann_text" class="pager-edit-input" placeholder="Text oznámení" value="${editItem ? editItem.text : ''}">
+                            <textarea id="ann_title" class="pager-edit-input" placeholder="Nadpis oznámení">${editItem ? editItem.title : ''}</textarea>
+                            <textarea id="ann_text" class="pager-edit-input" placeholder="Text oznámení">${editItem ? editItem.text : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('oznameni')">${editingItemId ? '💾 Uložit' : '+ Přidat oznámení'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2502,7 +2506,7 @@ table th,table td{
                                     ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('oznameni', ${item.id})">Smazat</button>` : ''}
                                 </div>
                             </div>
-                            <div style="margin-top: 4px;">${item.text}</div>
+                            <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;">${item.text}</div>
                         </div>`;
                     });
                 }
@@ -2511,8 +2515,8 @@ table th,table td{
                     let currentAuthor = getCurrentAuthorName();
 
                     contentHTML += `<div class="simple-form-box">
-                        <input type="text" id="info_title" class="pager-edit-input" placeholder="Nadpis info karty" value="${editItem ? editItem.title : ''}">
-                        <input type="text" id="info_text" class="pager-edit-input" placeholder="Text informací..." value="${editItem ? editItem.text : ''}">
+                        <textarea id="info_title" class="pager-edit-input" placeholder="Nadpis info karty">${editItem ? editItem.title : ''}</textarea>
+                        <textarea id="info_text" class="pager-edit-input" placeholder="Text informací...">${editItem ? editItem.text : ''}</textarea>
                         <div style="display:flex; gap:6px;">
                             <button class="edit-action-btn save-action-btn" onclick="saveItem('info')">${editingItemId ? '💾 Uložit' : '+ Přidat info'}</button>
                             ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2528,7 +2532,7 @@ table th,table td{
                                     ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('info', ${item.id})">Smazat</button>` : ''}
                                 </div>
                             </div>
-                            <div style="margin-top: 4px;">${item.text}</div>
+                            <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;">${item.text}</div>
                         </div>`;
                     });
                 }
@@ -2538,7 +2542,7 @@ table th,table td{
                             <div class="terminal-title">📻 AKTUÁLNÍ FREKVENCE SYSTÉMU</div>
                             <div style="font-size: 20px; font-weight: bold; color: #f39c12; margin: 10px 0;">${state.currentFreq || "112.5 MHz"}</div>
                             <div style="font-size: 12px; color: #8e9297; margin-bottom: 10px;">Změna frekvence v celém toshira systému:</div>
-                            <input type="text" id="freqInput" class="pager-edit-input" placeholder="Např. 115.8 MHz" value="${state.currentFreq || ''}" style="margin-bottom: 10px;" autocomplete="off">
+                            <textarea id="freqInput" class="pager-edit-input" placeholder="Např. 115.8 MHz" style="margin-bottom: 10px;" autocomplete="off">${state.currentFreq || ''}</textarea>
                             <button class="edit-action-btn save-action-btn" onclick="updateFrequency()">NASTAVIT NOVOU FREKVENCI</button>
                         </div>
                     `;
@@ -2548,8 +2552,8 @@ table th,table td{
 
                     if (state.isAdmin || state.isSecretario) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="kaple_title" class="pager-edit-input" placeholder="Nadpis zápisu / porady" value="${editItem ? editItem.title : ''}">
-                            <input type="text" id="kaple_text" class="pager-edit-input" placeholder="Obsah / Rozhodnutí..." value="${editItem ? editItem.text : ''}">
+                            <textarea id="kaple_title" class="pager-edit-input" placeholder="Nadpis zápisu / porady">${editItem ? editItem.title : ''}</textarea>
+                            <textarea id="kaple_text" class="pager-edit-input" placeholder="Obsah / Rozhodnutí...">${editItem ? editItem.text : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('kaple')">${editingItemId ? '💾 Uložit' : '+ Zaznamenat do kaple'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2566,7 +2570,7 @@ table th,table td{
                                     ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('kaple', ${item.id})">Smazat</button>` : ''}
                                 </div>
                             </div>
-                            <div style="margin-top: 4px;">${item.text}</div>
+                            <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;">${item.text}</div>
                         </div>`;
                     });
                 }
@@ -2575,8 +2579,8 @@ table th,table td{
 
                     if (state.isAdmin) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="park_rank" class="pager-edit-input" placeholder="Hodnost / Člen" value="${editItem ? editItem.rank : ''}">
-                            <input type="text" id="park_spot" class="pager-edit-input" placeholder="Přidělené parkovací místo / Garáž" value="${editItem ? editItem.spot : ''}">
+                            <textarea id="park_rank" class="pager-edit-input" placeholder="Hodnost / Člen">${editItem ? editItem.rank : ''}</textarea>
+                            <textarea id="park_spot" class="pager-edit-input" placeholder="Přidělené parkovací místo / Garáž">${editItem ? editItem.spot : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('parking')">${editingItemId ? '💾 Uložit' : '+ Přidat parkování'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2587,8 +2591,8 @@ table th,table td{
                     contentHTML += `<table><tr><th>HODNOST / ČLEN</th><th>MÍSTO</th>${state.isAdmin ? '<th>AKCE</th>' : ''}</tr>`;
                     state.parking.forEach(item => {
                         contentHTML += `<tr>
-                            <td><b>${item.rank}</b></td>
-                            <td>${item.spot}</td>
+                            <td><b style="white-space: pre-wrap; word-break: break-word;">${item.rank}</b></td>
+                            <td style="white-space: pre-wrap; word-break: break-word;">${item.spot}</td>
                             ${state.isAdmin ? `<td>
                                 <div class="action-buttons-group">
                                     <button class="edit-action-btn" onclick="startEditing('parking', ${item.id})">Upravit</button>
@@ -2604,9 +2608,9 @@ table th,table td{
 
                     if (state.isAdmin) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="loan_debtor" class="pager-edit-input" placeholder="Dlužník (jméno)" value="${editItem ? editItem.debtor : ''}">
-                            <input type="text" id="loan_amount" class="pager-edit-input" placeholder="Částka ($)" value="${editItem ? editItem.amount : ''}">
-                            <input type="text" id="loan_note" class="pager-edit-input" placeholder="Poznámka / Důvod" value="${editItem ? editItem.note || '' : ''}">
+                            <textarea id="loan_debtor" class="pager-edit-input" placeholder="Dlužník (jméno)">${editItem ? editItem.debtor : ''}</textarea>
+                            <textarea id="loan_amount" class="pager-edit-input" placeholder="Částka ($)">${editItem ? editItem.amount : ''}</textarea>
+                            <textarea id="loan_note" class="pager-edit-input" placeholder="Poznámka / Důvod">${editItem ? editItem.note || '' : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('pujcky')">${editingItemId ? '💾 Uložit' : '+ Evidovat půjčku'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2617,9 +2621,9 @@ table th,table td{
                     contentHTML += `<table><tr><th>DLUŽNÍK</th><th>ČÁSTKA</th><th>POZNÁMKA</th>${state.isAdmin ? '<th>AKCE</th>' : ''}</tr>`;
                     state.pujcky.forEach(item => {
                         contentHTML += `<tr>
-                            <td><b>${item.debtor}</b></td>
-                            <td style="color:#f39c12; font-weight:bold;">${item.amount}</td>
-                            <td>${item.note || '-'}</td>
+                            <td><b style="white-space: pre-wrap; word-break: break-word;">${item.debtor}</b></td>
+                            <td style="color:#f39c12; font-weight:bold; white-space: pre-wrap; word-break: break-word;">${item.amount}</td>
+                            <td style="white-space: pre-wrap; word-break: break-word;">${item.note || '-'}</td>
                             ${state.isAdmin ? `<td>
                                 <div class="action-buttons-group">
                                     <button class="edit-action-btn" onclick="startEditing('pujcky', ${item.id})">Upravit</button>
@@ -2635,9 +2639,9 @@ table th,table td{
 
                     if (state.isAdmin) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="fine_member" class="pager-edit-input" placeholder="Jméno hříšníka" value="${editItem ? editItem.member : ''}">
-                            <input type="text" id="fine_amount" class="pager-edit-input" placeholder="Částka pokuty ($)" value="${editItem ? editItem.amount : ''}">
-                            <input type="text" id="fine_reason" class="pager-edit-input" placeholder="Důvod pokuty" value="${editItem ? editItem.reason || '' : ''}">
+                            <textarea id="fine_member" class="pager-edit-input" placeholder="Jméno hříšníka">${editItem ? editItem.member : ''}</textarea>
+                            <textarea id="fine_amount" class="pager-edit-input" placeholder="Částka pokuty ($)">${editItem ? editItem.amount : ''}</textarea>
+                            <textarea id="fine_reason" class="pager-edit-input" placeholder="Důvod pokuty">${editItem ? editItem.reason || '' : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('pokuty')">${editingItemId ? '💾 Uložit' : '+ Uložit pokutu'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2648,9 +2652,9 @@ table th,table td{
                     contentHTML += `<table><tr><th>ČLEN</th><th>POKUTA</th><th>DŮVOD</th>${state.isAdmin ? '<th>AKCE</th>' : ''}</tr>`;
                     state.pokuty.forEach(item => {
                         contentHTML += `<tr>
-                            <td><b>${item.member}</b></td>
-                            <td style="color:#ff6b81; font-weight:bold;">${item.amount}</td>
-                            <td>${item.reason || '-'}</td>
+                            <td><b style="white-space: pre-wrap; word-break: break-word;">${item.member}</b></td>
+                            <td style="color:#ff6b81; font-weight:bold; white-space: pre-wrap; word-break: break-word;">${item.amount}</td>
+                            <td style="white-space: pre-wrap; word-break: break-word;">${item.reason || '-'}</td>
                             ${state.isAdmin ? `<td>
                                 <div class="action-buttons-group">
                                     <button class="edit-action-btn" onclick="startEditing('pokuty', ${item.id})">Upravit</button>
@@ -2666,10 +2670,10 @@ table th,table td{
 
                     if (state.isAdmin) {
                         contentHTML += `<div class="simple-form-box">
-                            <input type="text" id="meth_komu" class="pager-edit-input" placeholder="Komu prodáno (jméno/frakce)" value="${editItem ? editItem.komu : ''}">
-                            <input type="text" id="meth_za_kolik" class="pager-edit-input" placeholder="Cena za prodej ($)" value="${editItem ? editItem.zaKolik : ''}">
-                            <input type="text" id="meth_mnozstvi" class="pager-edit-input" placeholder="Množství (ks/g)" value="${editItem ? editItem.mnozstvi : ''}">
-                            <input type="text" id="meth_kdy" class="pager-edit-input" placeholder="Datum / Čas" value="${editItem ? editItem.kdy : ''}">
+                            <textarea id="meth_komu" class="pager-edit-input" placeholder="Komu prodáno (jméno/frakce)">${editItem ? editItem.komu : ''}</textarea>
+                            <textarea id="meth_za_kolik" class="pager-edit-input" placeholder="Cena za prodej ($)">${editItem ? editItem.zaKolik : ''}</textarea>
+                            <textarea id="meth_mnozstvi" class="pager-edit-input" placeholder="Množství (ks/g)">${editItem ? editItem.mnozstvi : ''}</textarea>
+                            <textarea id="meth_kdy" class="pager-edit-input" placeholder="Datum / Čas">${editItem ? editItem.kdy : ''}</textarea>
                             <div style="display:flex; gap:6px;">
                                 <button class="edit-action-btn save-action-btn" onclick="saveItem('prodej_meth')">${editingItemId ? '💾 Uložit' : '+ Evidovat prodej'}</button>
                                 ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2680,10 +2684,10 @@ table th,table td{
                     contentHTML += `<table><tr><th>KOMU</th><th>MNOŽSTVÍ</th><th>CENA</th><th>KDY</th>${state.isAdmin ? '<th>AKCE</th>' : ''}</tr>`;
                     state.prodej_meth.forEach(item => {
                         contentHTML += `<tr>
-                            <td><b>${item.komu}</b></td>
-                            <td>${item.mnozstvi}</td>
-                            <td style="color:#2ecc71; font-weight:bold;">${item.zaKolik}</td>
-                            <td>${item.kdy}</td>
+                            <td><b style="white-space: pre-wrap; word-break: break-word;">${item.komu}</b></td>
+                            <td style="white-space: pre-wrap; word-break: break-word;">${item.mnozstvi}</td>
+                            <td style="color:#2ecc71; font-weight:bold; white-space: pre-wrap; word-break: break-word;">${item.zaKolik}</td>
+                            <td style="white-space: pre-wrap; word-break: break-word;">${item.kdy}</td>
                             ${state.isAdmin ? `<td>
                                 <div class="action-buttons-group">
                                     <button class="edit-action-btn" onclick="startEditing('prodej_meth', ${item.id})">Upravit</button>
@@ -2699,9 +2703,9 @@ table th,table td{
                     let currentAuthor = getCurrentAuthorName();
 
                     contentHTML += `<div class="simple-form-box">
-                        <input type="text" id="contact_name" class="pager-edit-input" placeholder="Jméno / Pozice" value="${editItem ? editItem.name : ''}">
-                        <input type="text" id="contact_phone" class="pager-edit-input" placeholder="Telefonní číslo" value="${editItem ? editItem.phone : ''}">
-                        <input type="text" id="contact_note" class="pager-edit-input" placeholder="Poznámka" value="${editItem ? editItem.note || '' : ''}">
+                        <textarea id="contact_name" class="pager-edit-input" placeholder="Jméno / Pozice">${editItem ? editItem.name : ''}</textarea>
+                        <textarea id="contact_phone" class="pager-edit-input" placeholder="Telefonní číslo">${editItem ? editItem.phone : ''}</textarea>
+                        <textarea id="contact_note" class="pager-edit-input" placeholder="Poznámka">${editItem ? editItem.note || '' : ''}</textarea>
                         <div style="display:flex; gap:6px;">
                             <button class="edit-action-btn save-action-btn" onclick="saveItem('kontakty')">${editingItemId ? '💾 Uložit' : '+ Uložit kontakt'}</button>
                             ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
@@ -2712,9 +2716,9 @@ table th,table td{
                     state.kontakty.forEach(item => {
                         let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
                         contentHTML += `<tr>
-                            <td><b>${item.name}</b></td>
-                            <td style="color:#f39c12;">${item.phone}</td>
-                            <td>${item.note || '-'}</td>
+                            <td><b style="white-space: pre-wrap; word-break: break-word;">${item.name}</b></td>
+                            <td style="color:#f39c12; white-space: pre-wrap; word-break: break-word;">${item.phone}</td>
+                            <td style="white-space: pre-wrap; word-break: break-word;">${item.note || '-'}</td>
                             <td>
                                 <div class="action-buttons-group">
                                     ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('kontakty', ${item.id})">Upravit</button>` : ''}
