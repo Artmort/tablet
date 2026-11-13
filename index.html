@@ -897,6 +897,7 @@ table th,table td{
             { id: 'oznameni', name: '📢 Oznámení' },
             { id: 'freq', name: '📻 Terminál Freq' },
             { id: 'info', name: 'ℹ️ Info' },
+            { id: 'falesna_identita', name: '🕵️ Falešná identita' },
             { id: 'slozky', name: '📁 Složky' },
             { id: 'kaple', name: '⛪ Kaple & Záznamy' },
             { id: 'pujcky', name: '🤝 [Vedení] Půjčky' },
@@ -921,9 +922,12 @@ table th,table td{
                 if (!state.isAdmin && !state.isServerAdmin && (t.id === 'pujcky' || t.id === 'pokuty' || t.id === 'prodej_meth')) {
                     return false;
                 }
-				
-				// Zde zajistíme, že mechanik záložku 'freq' vůbec neuvidí
+                
+                // Mechanik nesmí vidět frekvenci ani falešnou identitu
                 if (t.id === 'freq' && state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
+                    return false;
+                }
+                if (t.id === 'falesna_identita' && state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
                     return false;
                 }
                 
@@ -994,6 +998,7 @@ table th,table td{
             ],
             oznameni: [{ id: 1, author: "Vedení", title: "VÍTÁME VÁS V SYSTÉMU", text: "Nový pager systém je plně synchronizovaný." }],
             info: [{ id: 1, author: "Vedení", title: "KLUBOVNA GPS", text: "Paleto Bay, stará garáž za dálnicí." }],
+            falesna_identita: [{ id: 1, author: "Vedení", title: "Příklad identity", text: "Zde jsou instrukce pro falešné doklady." }],
             kaple: [{ id: 1, author: "Secretario", title: "ZÁPIS Z PORADY", text: "Proběhla domluva ohledně hlídání teritoria." }],
             parking: [{ id: 1, author: "Vedení", rank: "Prezident", spot: "Garáž 1" }],
             pujcky: [{ id: 1, author: "Vedení", debtor: "Rick", amount: "50 000 $", dateGranted: "1.10.2026", note: "Na novou motorku" }],
@@ -1289,6 +1294,7 @@ table th,table td{
                     state.zamestnanci = cloudState.zamestnanci || state.zamestnanci;
                     state.oznameni = cloudState.oznameni || state.oznameni;
                     state.info = cloudState.info || state.info;
+                    state.falesna_identita = cloudState.falesna_identita || state.falesna_identita;
                     state.kaple = cloudState.kaple || state.kaple;
                     state.parking = cloudState.parking || state.parking;
                     state.pujcky = cloudState.pujcky || state.pujcky;
@@ -1349,6 +1355,7 @@ table th,table td{
                             state.zamestnanci = cloudState.zamestnanci || state.zamestnanci;
                             state.oznameni = cloudState.oznameni || state.oznameni;
                             state.info = cloudState.info || state.info;
+                            state.falesna_identita = cloudState.falesna_identita || state.falesna_identita;
                             state.kaple = cloudState.kaple || state.kaple;
                             state.parking = cloudState.parking || state.parking;
                             state.pujcky = cloudState.pujcky || state.pujcky;
@@ -1631,6 +1638,19 @@ table th,table td{
                 } else {
                     state.info.push({ id: Date.now(), author, title, text });
                 }
+            } else if (category === 'falesna_identita') {
+                const title = document.getElementById('falesna_title').value;
+                const text = document.getElementById('falesna_text').value;
+                if (!title || !text) return;
+                if (editingItemId) {
+                    let item = state.falesna_identita.find(i => i.id === editingItemId);
+                    if (item && (state.isAdmin || item.author === author)) { 
+                        item.title = title; 
+                        item.text = text; 
+                    }
+                } else {
+                    state.falesna_identita.push({ id: Date.now(), author, title, text });
+                }
             } else if (category === 'kaple') {
                 if (!state.isAdmin && !state.isSecretario) return;
                 const title = document.getElementById('kaple_title').value;
@@ -1713,6 +1733,7 @@ table th,table td{
             if (category === 'pokuty' && !state.isAdmin) return;
             if (category === 'oznameni' && !state.isAdmin) return;
             if (category === 'info' && !state.isAdmin && item.author !== author) return;
+            if (category === 'falesna_identita' && !state.isAdmin && item.author !== author) return;
             if (category === 'kontakty' && !state.isAdmin && item.author !== author) return; 
 
             state[category] = state[category].filter(i => i.id !== id);
@@ -2144,18 +2165,15 @@ table th,table td{
 
             const freqHeaderEl = document.getElementById('headerFreqDisplay');
             if (freqHeaderEl) {
-                // Zjistíme, zda uživatel může vidět frekvenci (pokud je mechanik bez adminských práv, tak ji vidět nesmí)
                 const canSeeFreq = state.isAuthenticated && state.hasAccess && (!state.isMechanic || state.isAdmin || state.isServerAdmin);
-    
-                // Celý rodičovský element frekvence (rámeček) najdeme přes jeho třídu .freq-header-box
                 const freqBox = freqHeaderEl.closest('.freq-header-box');
 
                 if (canSeeFreq) {
                     freqHeaderEl.innerText = state.currentFreq || "112.5 MHz";
-                    if (freqBox) freqBox.style.display = "flex"; // Zobrazit rámeček
+                    if (freqBox) freqBox.style.display = "flex";
                 } else {
                     freqHeaderEl.innerText = "--- MHz";
-                    if (freqBox) freqBox.style.display = "none"; // Úplně schovat rámeček vedle hodin
+                    if (freqBox) freqBox.style.display = "none";
                 }
             }
 
@@ -2543,6 +2561,32 @@ table th,table td{
                                 <div class="action-buttons-group">
                                     ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('info', ${item.id})">Upravit</button>` : ''}
                                     ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('info', ${item.id})">Smazat</button>` : ''}
+                                </div>
+                            </div>
+                            <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;">${item.text}</div>
+                        </div>`;
+                    });
+                }
+                else if (openedTab === 'falesna_identita') {
+                    let editItem = state.falesna_identita.find(i => i.id === editingItemId);
+                    let currentAuthor = getCurrentAuthorName();
+
+                    contentHTML += `<div class="simple-form-box">
+                        <textarea id="falesna_title" class="pager-edit-input" placeholder="Jméno / Název identity">${editItem ? editItem.title : ''}</textarea>
+                        <textarea id="falesna_text" class="pager-edit-input" placeholder="Podrobnosti, detaily, doklady...">${editItem ? editItem.text : ''}</textarea>
+                        <div style="display:flex; gap:6px;">
+                            <button class="edit-action-btn save-action-btn" onclick="saveItem('falesna_identita')">${editingItemId ? '💾 Uložit' : '+ Přidat identitu'}</button>
+                            ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
+                        </div>
+                    </div>`;
+
+                    state.falesna_identita.forEach(item => {
+                        let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
+                        contentHTML += `<div class="terminal-card">
+                            <div class="terminal-title">🕵️ ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
+                                <div class="action-buttons-group">
+                                    ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('falesna_identita', ${item.id})">Upravit</button>` : ''}
+                                    ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('falesna_identita', ${item.id})">Smazat</button>` : ''}
                                 </div>
                             </div>
                             <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;">${item.text}</div>
