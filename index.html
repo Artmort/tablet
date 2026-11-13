@@ -918,6 +918,7 @@ table th,table td{
                     return false;
                 }
                 
+                // Pokud má uživatel POUZE roli Mechanic (a není admin / server admin), uvidí výhradně tyto konkrétní záložky a ŽÁDNÝ live chat
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
                     if (t.id === 'livechat') {
                         return false;
@@ -928,15 +929,6 @@ table th,table td{
                     }
                 }
                 
-                if (t.id === 'slevy') {
-                    if (!state.isAdmin && !state.isServerAdmin && !state.isMechanic) return false;
-                }
-                
-                const mechanicRooms = ['info_dilna', 'pd_opravy', 'ems_opravy', 'fd_opravy'];
-                if (mechanicRooms.includes(t.id)) {
-                    if (!state.isMechanic && !state.isAdmin && !state.isServerAdmin) return false;
-                }
-
                 return true;
             });
         }
@@ -2312,7 +2304,7 @@ table th,table td{
                     let currentAuthor = getCurrentAuthorName();
                     let editItem = state[openedTab].find(i => i.id === editingItemId);
 
-                    if (state.isMechanic || state.isAdmin || state.isServerAdmin) {
+                    if (state.hasAccess) {
                         contentHTML += `<div class="simple-form-box">
                             <input type="text" id="${openedTab}_title" class="pager-edit-input" placeholder="Předmět / Vozidlo / Zásah" value="${editItem ? editItem.title : ''}">
                             <input type="text" id="${openedTab}_desc" class="pager-edit-input" placeholder="Popis opravy / Poznámka" value="${editItem ? editItem.desc : ''}">
