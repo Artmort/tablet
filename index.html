@@ -921,6 +921,11 @@ table th,table td{
                 if (!state.isAdmin && !state.isServerAdmin && (t.id === 'pujcky' || t.id === 'pokuty' || t.id === 'prodej_meth')) {
                     return false;
                 }
+				
+				// Zde zajistíme, že mechanik záložku 'freq' vůbec neuvidí
+                if (t.id === 'freq' && state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
+                    return false;
+                }
                 
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
                     if (t.id === 'livechat') {
@@ -2139,10 +2144,18 @@ table th,table td{
 
             const freqHeaderEl = document.getElementById('headerFreqDisplay');
             if (freqHeaderEl) {
-                if (state.isAuthenticated && state.hasAccess) {
+                // Zjistíme, zda uživatel může vidět frekvenci (pokud je mechanik bez adminských práv, tak ji vidět nesmí)
+                const canSeeFreq = state.isAuthenticated && state.hasAccess && (!state.isMechanic || state.isAdmin || state.isServerAdmin);
+    
+                // Celý rodičovský element frekvence (rámeček) najdeme přes jeho třídu .freq-header-box
+                const freqBox = freqHeaderEl.closest('.freq-header-box');
+
+                if (canSeeFreq) {
                     freqHeaderEl.innerText = state.currentFreq || "112.5 MHz";
+                    if (freqBox) freqBox.style.display = "flex"; // Zobrazit rámeček
                 } else {
                     freqHeaderEl.innerText = "--- MHz";
+                    if (freqBox) freqBox.style.display = "none"; // Úplně schovat rámeček vedle hodin
                 }
             }
 
