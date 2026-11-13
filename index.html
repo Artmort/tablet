@@ -918,7 +918,6 @@ table th,table td{
                     return false;
                 }
                 
-                // Pokud má uživatel POUZE roli Mechanic (a není admin / server admin), uvidí výhradně tyto konkrétní záložky a ŽÁDNÝ live chat
                 if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
                     if (t.id === 'livechat') {
                         return false;
@@ -1546,7 +1545,7 @@ table th,table td{
                     state.info_dilna.push({ id: Date.now(), author, title, desc });
                 }
             } else if (category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') {
-                if (!state.isMechanic && !state.isAdmin && !state.isServerAdmin) return;
+                if (!state.hasAccess || state.isServerAdmin) return;
                 const title = document.getElementById(`${category}_title`)?.value;
                 const desc = document.getElementById(`${category}_desc`)?.value;
                 if (!title || !desc) return;
