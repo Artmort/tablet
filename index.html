@@ -1603,7 +1603,7 @@ table th,table td{
                 } else {
                     state[category].push({ id: Date.now(), author, title, desc });
                 }
-            } else if (category === 'slozky' || category === 'ucetni_kniha' || category === 'archiv') {
+            } else if (category === 'slozky') {
                 if (state.isServerAdmin) return;
                 const title = document.getElementById('folder_title')?.value;
                 const desc = document.getElementById('folder_desc')?.value;
@@ -1613,6 +1613,25 @@ table th,table td{
                     document.getElementById('folder_photo_3')?.value || '',
                     document.getElementById('folder_photo_4')?.value || '',
                     document.getElementById('folder_photo_5')?.value || ''
+                ].filter(url => url.trim() !== '');
+
+                if (!title || !desc) return;
+                if (editingItemId) {
+                    let item = state[category].find(i => i.id === editingItemId);
+                    if (item && (state.isAdmin || item.author === author)) {
+                        item.title = title;
+                        item.desc = desc;
+                        item.photos = photos;
+                    }
+                } else {
+                    state[category].push({ id: Date.now(), author, title, desc, photos });
+                }
+            } else if (category === 'ucetni_kniha' || category === 'archiv') {
+                if (state.isServerAdmin) return;
+                const title = document.getElementById('folder_title')?.value;
+                const desc = document.getElementById('folder_desc')?.value;
+                const photos = [
+                    document.getElementById('folder_photo_1')?.value || ''
                 ].filter(url => url.trim() !== '');
 
                 if (!title || !desc) return;
@@ -2400,7 +2419,7 @@ table th,table td{
                         });
                     }
                 }
-                else if (openedTab === 'slozky' || openedTab === 'ucetni_kniha' || openedTab === 'archiv') {
+                else if (openedTab === 'slozky') {
                     let editItem = state[openedTab].find(i => i.id === editingItemId);
                     let currentAuthor = getCurrentAuthorName();
 
@@ -2423,9 +2442,8 @@ table th,table td{
                     } else {
                         state[openedTab].forEach(item => {
                             let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
-                            let folderIcon = openedTab === 'ucetni_kniha' ? '📖' : (openedTab === 'archiv' ? '🗄️' : '📁');
                             contentHTML += `<div class="terminal-card">
-                                <div class="terminal-title">${folderIcon} ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
+                                <div class="terminal-title">📁 ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
                                     <div class="action-buttons-group">
                                         ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('${openedTab}', ${item.id})">Upravit</button>` : ''}
                                         ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('${openedTab}', ${item.id})">Smazat</button>` : ''}
@@ -2436,6 +2454,47 @@ table th,table td{
                                 contentHTML += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">`;
                                 item.photos.forEach((ph, idx) => {
                                     contentHTML += `<button class="edit-action-btn save-action-btn" onclick="showImageModal('${ph}')">🔍 Foto ${idx+1}</button>`;
+                                });
+                                contentHTML += `</div>`;
+                            }
+                            contentHTML += `</div>`;
+                        });
+                    }
+                }
+                else if (openedTab === 'ucetni_kniha' || openedTab === 'archiv') {
+                    let editItem = state[openedTab].find(i => i.id === editingItemId);
+                    let currentAuthor = getCurrentAuthorName();
+                    let folderIcon = openedTab === 'ucetni_kniha' ? '📖' : '🗄️';
+
+                    contentHTML += `<div class="simple-form-box">
+                        <textarea id="folder_title" class="pager-edit-input" placeholder="Nadpis položky">${editItem ? editItem.title : ''}</textarea>
+                        <textarea id="folder_desc" class="pager-edit-input" placeholder="Popis položky">${editItem ? editItem.desc : ''}</textarea>
+                        <textarea id="folder_photo_1" class="pager-edit-input" placeholder="Link na fotku">${editItem && editItem.photos ? editItem.photos[0] || '' : ''}</textarea>
+                        <div style="display:flex; gap:6px;">
+                            <button class="edit-action-btn save-action-btn" onclick="saveItem('${openedTab}')">${editingItemId ? '💾 Uložit' : '+ Přidat záznam'}</button>
+                            ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
+                        </div>
+                    </div>`;
+
+                    if (state[openedTab].length === 0) {
+                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím zde nejsou žádné záznamy.</div>`;
+                    } else {
+                        state[openedTab].forEach(item => {
+                            let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
+                            contentHTML += `<div class="terminal-card">
+                                <div class="terminal-title">${folderIcon} ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
+                                    <div class="action-buttons-group">
+                                        ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('${openedTab}', ${item.id})">Upravit</button>` : ''}
+                                        ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('${openedTab}', ${item.id})">Smazat</button>` : ''}
+                                    </div>
+                                </div>
+                                <div style="margin-bottom:8px; white-space: pre-wrap; word-break: break-word;">${item.desc}</div>`;
+                            if (item.photos && item.photos.length > 0 && item.photos[0]) {
+                                contentHTML += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">`;
+                                item.photos.forEach((ph, idx) => {
+                                    if(ph) {
+                                        contentHTML += `<button class="edit-action-btn save-action-btn" onclick="showImageModal('${ph}')">🔍 Zobrazit foto</button>`;
+                                    }
                                 });
                                 contentHTML += `</div>`;
                             }
