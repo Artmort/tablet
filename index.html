@@ -918,7 +918,7 @@ table th,table td{
         let activeModalImage = null;
 
         function getVisibleTabs() {
-            const hiddenForServerAdmin = ['livechat', 'kasa', 'oznameni', 'slozky', 'prodej_meth', 'ucetni_kniha', 'archiv'];
+            const hiddenForServerAdmin = ['falesna_identita', 'info', 'livechat', 'kasa', 'oznameni', 'slozky', 'prodej_meth', 'ucetni_kniha', 'archiv'];
             return tabsList.filter(t => {
                 if (state.isServerAdmin && hiddenForServerAdmin.includes(t.id)) {
                     return false;
