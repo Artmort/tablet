@@ -851,7 +851,8 @@ table th,table td{
             "1552778056228278366", 
             "1552778056228278365"  
         ];
-        const SECRETARIO_ROLE = "1552778056219893869"; 
+        const SECRETARIO_ROLE = "1552778056219893869"; // kanri
+        const KANTO_ROLE = "1552778056219893870"; // 📦Kanto
         const SERVER_ADMIN_ROLE = "1552778056219893864";
         const MECHANIC_ROLE = "1569073934769586186";
 
@@ -890,7 +891,7 @@ table th,table td{
             { id: 'nastaveni_nicku', name: '✏️ Nastavit Přezdívku' },
             { id: 'zamestnanci', name: '👥 Složky členů' },
             { id: 'falesna_identita', name: '🕵️ Falešná identita' },
-            //{ id: 'kasa', name: '💰 Kasa' },//
+            { id: 'kasa', name: '💰 Kasa' },
             { id: 'slevy', name: '🏷️ Slevy' },
             { id: 'info_dilna', name: '🛠️ Info dílna' },
             { id: 'pd_opravy', name: '🔧 PD opravy' },
@@ -900,6 +901,8 @@ table th,table td{
             { id: 'freq', name: '📻 Terminál Freq' },
             { id: 'info', name: 'ℹ️ Info' },
             { id: 'slozky', name: '📁 Složky' },
+            { id: 'ucetni_kniha', name: '📖 Účetní kniha' },
+            { id: 'archiv', name: '🗄️ Archiv' },
             { id: 'kaple', name: '⛪ Kaple & Záznamy' },
             { id: 'pujcky', name: '🤝 [Vedení] Půjčky' },
             { id: 'pokuty', name: '⚠️ [Vedení] Pokuty' },
@@ -915,7 +918,7 @@ table th,table td{
         let activeModalImage = null;
 
         function getVisibleTabs() {
-            const hiddenForServerAdmin = ['livechat', 'kasa', 'oznameni', 'slozky', 'prodej_meth'];
+            const hiddenForServerAdmin = ['livechat', 'kasa', 'oznameni', 'slozky', 'prodej_meth', 'ucetni_kniha', 'archiv'];
             return tabsList.filter(t => {
                 if (state.isServerAdmin && hiddenForServerAdmin.includes(t.id)) {
                     return false;
@@ -924,6 +927,16 @@ table th,table td{
                     return false;
                 }
                 
+                // Viditelnost pro účetní knihu: Admini nebo Kanto
+                if (t.id === 'ucetni_kniha' && !state.isAdmin && !state.isServerAdmin && !state.isKanto) {
+                    return false;
+                }
+
+                // Viditelnost pro Archiv: Admini nebo Kanri
+                if (t.id === 'archiv' && !state.isAdmin && !state.isServerAdmin && !state.isSecretario) {
+                    return false;
+                }
+
                 // Mechanik nesmí vidět frekvenci ani falešnou identitu
                 if (t.id === 'freq' && state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
                     return false;
@@ -972,6 +985,7 @@ table th,table td{
             hasAccess: false,
             isAdmin: false,
             isSecretario: false,
+            isKanto: false,
             isServerAdmin: false,
             isMechanic: false,
             discordUser: null,
@@ -979,6 +993,8 @@ table th,table td{
             hasUnreadFreq: true,
             currentFreq: "112.5 MHz",
             slozky: [],
+            ucetni_kniha: [],
+            archiv: [],
             prodej_meth: [],
             slevy: [],
             info_dilna: [],
@@ -1024,6 +1040,7 @@ table th,table td{
                 let hasAccess = false;
                 let isAdmin = false;
                 let isSecretario = false;
+                let isKanto = false;
                 let isServerAdmin = false;
                 let isMechanic = false;
 
@@ -1033,18 +1050,20 @@ table th,table td{
                         const hasMiembro = memberData.roles.includes(MIEMBRO_ROLE);
                         const hasAdminRole = memberData.roles.some(roleId => ADMIN_ROLES.includes(roleId));
                         const hasSecretarioRole = memberData.roles.includes(SECRETARIO_ROLE);
+                        const hasKantoRole = memberData.roles.includes(KANTO_ROLE);
                         const hasServerAdminRole = memberData.roles.includes(SERVER_ADMIN_ROLE);
                         const hasMechanicRole = memberData.roles.includes(MECHANIC_ROLE);
 
                         if (hasServerAdminRole) {
                             hasAccess = true;
                             isServerAdmin = true;
-                        } else if (hasMiembro || hasAdminRole || hasSecretarioRole || hasMechanicRole) {
+                        } else if (hasMiembro || hasAdminRole || hasSecretarioRole || hasKantoRole || hasMechanicRole) {
                             hasAccess = true;
                             if (hasAdminRole) {
                                 isAdmin = true;
-                            } else if (hasSecretarioRole) {
-                                isSecretario = true;
+                            } else {
+                                if (hasSecretarioRole) isSecretario = true;
+                                if (hasKantoRole) isKanto = true;
                             }
                             if (hasMechanicRole) {
                                 isMechanic = true;
@@ -1058,6 +1077,7 @@ table th,table td{
                 state.hasAccess = hasAccess;
                 state.isAdmin = isAdmin;
                 state.isSecretario = isSecretario;
+                state.isKanto = isKanto;
                 state.isServerAdmin = isServerAdmin;
                 state.isMechanic = isMechanic;
 
@@ -1066,6 +1086,7 @@ table th,table td{
                     hasAccess: hasAccess,
                     isAdmin: isAdmin,
                     isSecretario: isSecretario,
+                    isKanto: isKanto,
                     isServerAdmin: isServerAdmin,
                     isMechanic: isMechanic,
                     discordUser: userData.username,
@@ -1096,6 +1117,7 @@ table th,table td{
                     hasAccess: state.hasAccess,
                     isAdmin: state.isAdmin,
                     isSecretario: state.isSecretario,
+                    isKanto: state.isKanto,
                     isServerAdmin: state.isServerAdmin,
                     isMechanic: state.isMechanic,
                     discordUser: state.discordUser
@@ -1114,6 +1136,7 @@ table th,table td{
                     oldPermissions.hasAccess !== state.hasAccess ||
                     oldPermissions.isAdmin !== state.isAdmin ||
                     oldPermissions.isSecretario !== state.isSecretario ||
+                    oldPermissions.isKanto !== state.isKanto ||
                     oldPermissions.isServerAdmin !== state.isServerAdmin ||
                     oldPermissions.isMechanic !== state.isMechanic ||
                     oldPermissions.discordUser !== state.discordUser;
@@ -1167,6 +1190,7 @@ table th,table td{
             state.hasAccess = false;
             state.isAdmin = false;
             state.isSecretario = false;
+            state.isKanto = false;
             state.isServerAdmin = false;
             state.isMechanic = false;
             state.discordUser = null;
@@ -1286,6 +1310,8 @@ table th,table td{
                 if (appData && appData.data) {
                     const cloudState = appData.data;
                     state.slozky = cloudState.slozky || state.slozky;
+                    state.ucetni_kniha = cloudState.ucetni_kniha || state.ucetni_kniha;
+                    state.archiv = cloudState.archiv || state.archiv;
                     state.prodej_meth = cloudState.prodej_meth || state.prodej_meth;
                     state.slevy = cloudState.slevy || state.slevy;
                     state.info_dilna = cloudState.info_dilna || state.info_dilna;
@@ -1347,6 +1373,8 @@ table th,table td{
                         if (payload.new && payload.new.key === 'main_state' && payload.new.data) {
                             const cloudState = payload.new.data;
                             state.slozky = cloudState.slozky || state.slozky;
+                            state.ucetni_kniha = cloudState.ucetni_kniha || state.ucetni_kniha;
+                            state.archiv = cloudState.archiv || state.archiv;
                             state.prodej_meth = cloudState.prodej_meth || state.prodej_meth;
                             state.slevy = cloudState.slevy || state.slevy;
                             state.info_dilna = cloudState.info_dilna || state.info_dilna;
@@ -1575,7 +1603,7 @@ table th,table td{
                 } else {
                     state[category].push({ id: Date.now(), author, title, desc });
                 }
-            } else if (category === 'slozky') {
+            } else if (category === 'slozky' || category === 'ucetni_kniha' || category === 'archiv') {
                 if (state.isServerAdmin) return;
                 const title = document.getElementById('folder_title')?.value;
                 const desc = document.getElementById('folder_desc')?.value;
@@ -1589,14 +1617,14 @@ table th,table td{
 
                 if (!title || !desc) return;
                 if (editingItemId) {
-                    let item = state.slozky.find(i => i.id === editingItemId);
+                    let item = state[category].find(i => i.id === editingItemId);
                     if (item && (state.isAdmin || item.author === author)) {
                         item.title = title;
                         item.desc = desc;
                         item.photos = photos;
                     }
                 } else {
-                    state.slozky.push({ id: Date.now(), author, title, desc, photos });
+                    state[category].push({ id: Date.now(), author, title, desc, photos });
                 }
             } else if (category === 'prodej_meth') {
                 if (!state.isAdmin) return;
@@ -1726,7 +1754,7 @@ table th,table td{
             if (category === 'slevy' && !state.isAdmin) return; 
             if (category === 'info_dilna' && !state.isAdmin) return;
             if ((category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && item.author !== author) return; 
-            if (category === 'slozky' && !state.isAdmin && item.author !== author) return;
+            if ((category === 'slozky' || category === 'ucetni_kniha' || category === 'archiv') && !state.isAdmin && item.author !== author) return;
             if (category === 'prodej_meth' && !state.isAdmin) return;
             if (category === 'parking' && !state.isAdmin) return;
             if (category === 'kaple' && !state.isAdmin && !state.isSecretario) return;
@@ -1779,6 +1807,11 @@ table th,table td{
                 flipBtn.style.display = "flex";
             } else if(state.isSecretario) {
                 btn.innerHTML = `📋 Kanri [${icIdentityName}]`;
+                btn.classList.add('is-admin');
+                btn.classList.remove('is-server-admin');
+                flipBtn.style.display = "none";
+            } else if(state.isKanto) {
+                btn.innerHTML = `📦 Kanto [${icIdentityName}]`;
                 btn.classList.add('is-admin');
                 btn.classList.remove('is-server-admin');
                 flipBtn.style.display = "none";
@@ -2367,34 +2400,35 @@ table th,table td{
                         });
                     }
                 }
-                else if (openedTab === 'slozky') {
-                    let editItem = state.slozky.find(i => i.id === editingItemId);
+                else if (openedTab === 'slozky' || openedTab === 'ucetni_kniha' || openedTab === 'archiv') {
+                    let editItem = state[openedTab].find(i => i.id === editingItemId);
                     let currentAuthor = getCurrentAuthorName();
 
                     contentHTML += `<div class="simple-form-box">
-                        <textarea id="folder_title" class="pager-edit-input" placeholder="Nadpis složky">${editItem ? editItem.title : ''}</textarea>
-                        <textarea id="folder_desc" class="pager-edit-input" placeholder="Popis složky">${editItem ? editItem.desc : ''}</textarea>
+                        <textarea id="folder_title" class="pager-edit-input" placeholder="Nadpis položky">${editItem ? editItem.title : ''}</textarea>
+                        <textarea id="folder_desc" class="pager-edit-input" placeholder="Popis položky">${editItem ? editItem.desc : ''}</textarea>
                         <textarea id="folder_photo_1" class="pager-edit-input" placeholder="Link na fotku 1 (volitelné)">${editItem && editItem.photos ? editItem.photos[0] || '' : ''}</textarea>
                         <textarea id="folder_photo_2" class="pager-edit-input" placeholder="Link na fotku 2 (volitelné)">${editItem && editItem.photos ? editItem.photos[1] || '' : ''}</textarea>
                         <textarea id="folder_photo_3" class="pager-edit-input" placeholder="Link na fotku 3 (volitelné)">${editItem && editItem.photos ? editItem.photos[2] || '' : ''}</textarea>
                         <textarea id="folder_photo_4" class="pager-edit-input" placeholder="Link na fotku 4 (volitelné)">${editItem && editItem.photos ? editItem.photos[3] || '' : ''}</textarea>
                         <textarea id="folder_photo_5" class="pager-edit-input" placeholder="Link na fotku 5 (volitelné)">${editItem && editItem.photos ? editItem.photos[4] || '' : ''}</textarea>
                         <div style="display:flex; gap:6px;">
-                            <button class="edit-action-btn save-action-btn" onclick="saveItem('slozky')">${editingItemId ? '💾 Uložit' : '+ Založit složku'}</button>
+                            <button class="edit-action-btn save-action-btn" onclick="saveItem('${openedTab}')">${editingItemId ? '💾 Uložit' : '+ Přidat záznam'}</button>
                             ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
                         </div>
                     </div>`;
 
-                    if (state.slozky.length === 0) {
-                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím nebyly založeny žádné složky.</div>`;
+                    if (state[openedTab].length === 0) {
+                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím zde nejsou žádné záznamy.</div>`;
                     } else {
-                        state.slozky.forEach(item => {
+                        state[openedTab].forEach(item => {
                             let canEditDel = (state.isAdmin || state.isServerAdmin || item.author === currentAuthor);
+                            let folderIcon = openedTab === 'ucetni_kniha' ? '📖' : (openedTab === 'archiv' ? '🗄️' : '📁');
                             contentHTML += `<div class="terminal-card">
-                                <div class="terminal-title">📁 ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
+                                <div class="terminal-title">${folderIcon} ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
                                     <div class="action-buttons-group">
-                                        ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('slozky', ${item.id})">Upravit</button>` : ''}
-                                        ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('slozky', ${item.id})">Smazat</button>` : ''}
+                                        ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('${openedTab}', ${item.id})">Upravit</button>` : ''}
+                                        ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('${openedTab}', ${item.id})">Smazat</button>` : ''}
                                     </div>
                                 </div>
                                 <div style="margin-bottom:8px; white-space: pre-wrap; word-break: break-word;">${item.desc}</div>`;
