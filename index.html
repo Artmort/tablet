@@ -853,6 +853,7 @@ table th,table td{
         ];
         const SECRETARIO_ROLE = "1552778056219893869"; // kanri
         const KANTO_ROLE = "1552778056219893870"; // 📦Kanto
+        const SENTTO_ROLE = "1552778056219893871"; // 🛤️Sento
         const SERVER_ADMIN_ROLE = "1552778056219893864";
         const MECHANIC_ROLE = "1569073934769586186";
 
@@ -891,7 +892,7 @@ table th,table td{
             { id: 'nastaveni_nicku', name: '✏️ Nastavit Přezdívku' },
             { id: 'zamestnanci', name: '👥 Složky členů' },
             { id: 'falesna_identita', name: '🕵️ Falešná identita' },
-            //{ id: 'kasa', name: '💰 Kasa' },
+            { id: 'kasa', name: '💰 Kasa' },
             { id: 'slevy', name: '🏷️ Slevy' },
             { id: 'info_dilna', name: '🛠️ Info dílna' },
             { id: 'pd_opravy', name: '🔧 PD opravy' },
@@ -901,6 +902,7 @@ table th,table td{
             { id: 'freq', name: '📻 Terminál Freq' },
             { id: 'info', name: 'ℹ️ Info' },
             { id: 'slozky', name: '📁 Složky' },
+            { id: 'formace', name: '🛡️ Formace' },
             { id: 'ucetni_kniha', name: '📖 Účetní kniha' },
             { id: 'archiv', name: '🗄️ Archiv' },
             { id: 'kaple', name: '⛪ Kaple & Záznamy' },
@@ -917,8 +919,10 @@ table th,table td{
         let loggedInMemberId = null;
         let activeModalImage = null;
 
+        let userDiscordRoles = []; // Uložení rolí aktuálního uživatele
+
         function getVisibleTabs() {
-            const hiddenForServerAdmin = ['falesna_identita', 'info', 'livechat', 'kasa', 'oznameni', 'slozky', 'prodej_meth', 'ucetni_kniha', 'archiv'];
+            const hiddenForServerAdmin = ['falesna_identita', 'info', 'livechat', 'kasa', 'oznameni', 'slozky', 'formace', 'prodej_meth', 'ucetni_kniha', 'archiv'];
             return tabsList.filter(t => {
                 if (state.isServerAdmin && hiddenForServerAdmin.includes(t.id)) {
                     return false;
@@ -927,6 +931,13 @@ table th,table td{
                     return false;
                 }
                 
+                // Formace: Vidí každý KROMĚ role mechanic
+                if (t.id === 'formace') {
+                    if (state.isMechanic && !state.isAdmin && !state.isServerAdmin) {
+                        return false;
+                    }
+                }
+
                 // Viditelnost pro účetní knihu: Admini nebo Kanto
                 if (t.id === 'ucetni_kniha' && !state.isAdmin && !state.isServerAdmin && !state.isKanto) {
                     return false;
@@ -986,6 +997,7 @@ table th,table td{
             isAdmin: false,
             isSecretario: false,
             isKanto: false,
+            isSentto: false,
             isServerAdmin: false,
             isMechanic: false,
             discordUser: null,
@@ -993,6 +1005,7 @@ table th,table td{
             hasUnreadFreq: true,
             currentFreq: "112.5 MHz",
             slozky: [],
+            formace: [],
             ucetni_kniha: [],
             archiv: [],
             prodej_meth: [],
@@ -1041,29 +1054,33 @@ table th,table td{
                 let isAdmin = false;
                 let isSecretario = false;
                 let isKanto = false;
+                let isSentto = false;
                 let isServerAdmin = false;
                 let isMechanic = false;
 
                 if (memberRes.ok) {
                     const memberData = await memberRes.json();
                     if (memberData && memberData.roles) {
+                        userDiscordRoles = memberData.roles;
                         const hasMiembro = memberData.roles.includes(MIEMBRO_ROLE);
                         const hasAdminRole = memberData.roles.some(roleId => ADMIN_ROLES.includes(roleId));
                         const hasSecretarioRole = memberData.roles.includes(SECRETARIO_ROLE);
                         const hasKantoRole = memberData.roles.includes(KANTO_ROLE);
+                        const hasSenttoRole = memberData.roles.includes(SENTTO_ROLE);
                         const hasServerAdminRole = memberData.roles.includes(SERVER_ADMIN_ROLE);
                         const hasMechanicRole = memberData.roles.includes(MECHANIC_ROLE);
 
                         if (hasServerAdminRole) {
                             hasAccess = true;
                             isServerAdmin = true;
-                        } else if (hasMiembro || hasAdminRole || hasSecretarioRole || hasKantoRole || hasMechanicRole) {
+                        } else if (hasMiembro || hasAdminRole || hasSecretarioRole || hasKantoRole || hasSenttoRole || hasMechanicRole) {
                             hasAccess = true;
                             if (hasAdminRole) {
                                 isAdmin = true;
                             } else {
                                 if (hasSecretarioRole) isSecretario = true;
                                 if (hasKantoRole) isKanto = true;
+                                if (hasSenttoRole) isSentto = true;
                             }
                             if (hasMechanicRole) {
                                 isMechanic = true;
@@ -1078,6 +1095,7 @@ table th,table td{
                 state.isAdmin = isAdmin;
                 state.isSecretario = isSecretario;
                 state.isKanto = isKanto;
+                state.isSentto = isSentto;
                 state.isServerAdmin = isServerAdmin;
                 state.isMechanic = isMechanic;
 
@@ -1087,9 +1105,11 @@ table th,table td{
                     isAdmin: isAdmin,
                     isSecretario: isSecretario,
                     isKanto: isKanto,
+                    isSentto: isSentto,
                     isServerAdmin: isServerAdmin,
                     isMechanic: isMechanic,
                     discordUser: userData.username,
+                    roles: userDiscordRoles,
                     token: accessToken
                 };
                 localStorage.setItem('pager_user_session', JSON.stringify(sessionData));
@@ -1118,6 +1138,7 @@ table th,table td{
                     isAdmin: state.isAdmin,
                     isSecretario: state.isSecretario,
                     isKanto: state.isKanto,
+                    isSentto: state.isSentto,
                     isServerAdmin: state.isServerAdmin,
                     isMechanic: state.isMechanic,
                     discordUser: state.discordUser
@@ -1137,6 +1158,7 @@ table th,table td{
                     oldPermissions.isAdmin !== state.isAdmin ||
                     oldPermissions.isSecretario !== state.isSecretario ||
                     oldPermissions.isKanto !== state.isKanto ||
+                    oldPermissions.isSentto !== state.isSentto ||
                     oldPermissions.isServerAdmin !== state.isServerAdmin ||
                     oldPermissions.isMechanic !== state.isMechanic ||
                     oldPermissions.discordUser !== state.discordUser;
@@ -1170,6 +1192,7 @@ table th,table td{
                 const data = JSON.parse(saved);
                 if (!data.token) return false;
 
+                if (data.roles) userDiscordRoles = data.roles;
                 const success = await processAndVerifyToken(data.token);
                 if (!success) {
                     localStorage.removeItem('pager_user_session');
@@ -1191,9 +1214,11 @@ table th,table td{
             state.isAdmin = false;
             state.isSecretario = false;
             state.isKanto = false;
+            state.isSentto = false;
             state.isServerAdmin = false;
             state.isMechanic = false;
             state.discordUser = null;
+            userDiscordRoles = [];
             
             window.location.href = window.location.pathname;
         }
@@ -1310,6 +1335,7 @@ table th,table td{
                 if (appData && appData.data) {
                     const cloudState = appData.data;
                     state.slozky = cloudState.slozky || state.slozky;
+                    state.formace = cloudState.formace || state.formace;
                     state.ucetni_kniha = cloudState.ucetni_kniha || state.ucetni_kniha;
                     state.archiv = cloudState.archiv || state.archiv;
                     state.prodej_meth = cloudState.prodej_meth || state.prodej_meth;
@@ -1373,6 +1399,7 @@ table th,table td{
                         if (payload.new && payload.new.key === 'main_state' && payload.new.data) {
                             const cloudState = payload.new.data;
                             state.slozky = cloudState.slozky || state.slozky;
+                            state.formace = cloudState.formace || state.formace;
                             state.ucetni_kniha = cloudState.ucetni_kniha || state.ucetni_kniha;
                             state.archiv = cloudState.archiv || state.archiv;
                             state.prodej_meth = cloudState.prodej_meth || state.prodej_meth;
@@ -1626,6 +1653,30 @@ table th,table td{
                 } else {
                     state[category].push({ id: Date.now(), author, title, desc, photos });
                 }
+            } else if (category === 'formace') {
+                // Do formace může zapisovat pouze role Sento (nebo admin)
+                const hasSenttoRole = userDiscordRoles.includes(SENTTO_ROLE);
+                if (!state.isAdmin && !hasSenttoRole) {
+                    showPagerNotification("Do složky Formace může zapisovat pouze role 🛤️Sento!", true);
+                    return;
+                }
+                const title = document.getElementById('folder_title')?.value;
+                const desc = document.getElementById('folder_desc')?.value;
+                const photos = [
+                    document.getElementById('folder_photo_1')?.value || ''
+                ].filter(url => url.trim() !== '');
+
+                if (!title || !desc) return;
+                if (editingItemId) {
+                    let item = state[category].find(i => i.id === editingItemId);
+                    if (item && (state.isAdmin || item.author === author)) {
+                        item.title = title;
+                        item.desc = desc;
+                        item.photos = photos;
+                    }
+                } else {
+                    state[category].push({ id: Date.now(), author, title, desc, photos });
+                }
             } else if (category === 'ucetni_kniha' || category === 'archiv') {
                 if (state.isServerAdmin) return;
                 const title = document.getElementById('folder_title')?.value;
@@ -1773,7 +1824,7 @@ table th,table td{
             if (category === 'slevy' && !state.isAdmin) return; 
             if (category === 'info_dilna' && !state.isAdmin) return;
             if ((category === 'pd_opravy' || category === 'ems_opravy' || category === 'fd_opravy') && !state.isAdmin && item.author !== author) return; 
-            if ((category === 'slozky' || category === 'ucetni_kniha' || category === 'archiv') && !state.isAdmin && item.author !== author) return;
+            if ((category === 'slozky' || category === 'ucetni_kniha' || category === 'archiv' || category === 'formace') && !state.isAdmin && item.author !== author) return;
             if (category === 'prodej_meth' && !state.isAdmin) return;
             if (category === 'parking' && !state.isAdmin) return;
             if (category === 'kaple' && !state.isAdmin && !state.isSecretario) return;
@@ -1831,6 +1882,11 @@ table th,table td{
                 flipBtn.style.display = "none";
             } else if(state.isKanto) {
                 btn.innerHTML = `📦 Kanto [${icIdentityName}]`;
+                btn.classList.add('is-admin');
+                btn.classList.remove('is-server-admin');
+                flipBtn.style.display = "none";
+            } else if(state.isSentto) {
+                btn.innerHTML = `🛤️ Sento [${icIdentityName}]`;
                 btn.classList.add('is-admin');
                 btn.classList.remove('is-server-admin');
                 flipBtn.style.display = "none";
@@ -2454,6 +2510,52 @@ table th,table td{
                                 contentHTML += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">`;
                                 item.photos.forEach((ph, idx) => {
                                     contentHTML += `<button class="edit-action-btn save-action-btn" onclick="showImageModal('${ph}')">🔍 Foto ${idx+1}</button>`;
+                                });
+                                contentHTML += `</div>`;
+                            }
+                            contentHTML += `</div>`;
+                        });
+                    }
+                }
+                else if (openedTab === 'formace') {
+                    let editItem = state[openedTab].find(i => i.id === editingItemId);
+                    let currentAuthor = getCurrentAuthorName();
+                    let hasSenttoRole = userDiscordRoles.includes(SENTTO_ROLE);
+                    let canWrite = (state.isAdmin || hasSenttoRole);
+
+                    if (canWrite) {
+                        contentHTML += `<div class="simple-form-box">
+                            <textarea id="folder_title" class="pager-edit-input" placeholder="Nadpis formace">${editItem ? editItem.title : ''}</textarea>
+                            <textarea id="folder_desc" class="pager-edit-input" placeholder="Podrobnosti formace...">${editItem ? editItem.desc : ''}</textarea>
+                            <textarea id="folder_photo_1" class="pager-edit-input" placeholder="Link na fotku / nákres (volitelné)">${editItem && editItem.photos ? editItem.photos[0] || '' : ''}</textarea>
+                            <div style="display:flex; gap:6px;">
+                                <button class="edit-action-btn save-action-btn" onclick="saveItem('formace')">${editingItemId ? '💾 Uložit' : '+ Přidat formaci'}</button>
+                                ${editingItemId ? `<button class="edit-action-btn delete-action-btn" onclick="cancelEditing()">Zrušit</button>` : ''}
+                            </div>
+                        </div>`;
+                    } else {
+                        contentHTML += `<div style="font-size: 11px; color: #f39c12; margin-bottom: 8px; text-align: center;">[ ℹ️ Zápis do této složky je povolen pouze roli 🛤️Sento nebo Adminům ]</div>`;
+                    }
+
+                    if (state[openedTab].length === 0) {
+                        contentHTML += `<div style="color: #666; font-size: 13px; padding: 10px; text-align:center;">Zatím zde nejsou žádné formace.</div>`;
+                    } else {
+                        state[openedTab].forEach(item => {
+                            let canEditDel = (state.isAdmin || state.isServerAdmin || (item.author === currentAuthor && canWrite));
+                            contentHTML += `<div class="terminal-card">
+                                <div class="terminal-title">🛡️ ${item.title} <span style="font-size:10px; color:#666;">(Autor: ${item.author})</span>
+                                    <div class="action-buttons-group">
+                                        ${canEditDel ? `<button class="edit-action-btn" onclick="startEditing('formace', ${item.id})">Upravit</button>` : ''}
+                                        ${canEditDel ? `<button class="edit-action-btn delete-action-btn" onclick="deleteItem('formace', ${item.id})">Smazat</button>` : ''}
+                                    </div>
+                                </div>
+                                <div style="margin-bottom:8px; white-space: pre-wrap; word-break: break-word;">${item.desc}</div>`;
+                            if (item.photos && item.photos.length > 0 && item.photos[0]) {
+                                contentHTML += `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">`;
+                                item.photos.forEach((ph, idx) => {
+                                    if(ph) {
+                                        contentHTML += `<button class="edit-action-btn save-action-btn" onclick="showImageModal('${ph}')">🔍 Zobrazit foto</button>`;
+                                    }
                                 });
                                 contentHTML += `</div>`;
                             }
