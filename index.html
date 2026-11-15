@@ -922,7 +922,7 @@ table th,table td{
         let userDiscordRoles = []; // Uložení rolí aktuálního uživatele
 
         function getVisibleTabs() {
-            const hiddenForServerAdmin = ['falesna_identita', 'info', 'livechat', 'kasa', 'oznameni', 'slozky', 'formace', 'prodej_meth', 'ucetni_kniha', 'archiv'];
+            const hiddenForServerAdmin = ['formace', 'falesna_identita', 'info', 'livechat', 'kasa', 'oznameni', 'slozky', 'formace', 'prodej_meth', 'ucetni_kniha', 'archiv'];
             return tabsList.filter(t => {
                 if (state.isServerAdmin && hiddenForServerAdmin.includes(t.id)) {
                     return false;
